@@ -17,3 +17,5 @@
 
 /* Atlas cuts use alpha-derived SVG boundaries, not fixed rectangular thirds. */
 svg.sprite{overflow:visible;width:auto;background:none} .portrait-wrap svg.sprite{width:75%;height:auto} .meet-head>svg.sprite{width:95px} .scene-figure>svg.sprite{width:auto}
+
+.journal-filter{display:grid;gap:10px;color:var(--muted);font-size:.9rem}.journal-filter select{width:100%;min-height:46px;padding:10px 12px;background:#0f1c2a;color:var(--ink);border:1px solid var(--line);border-radius:8px;font:inherit}.journal-scene{border:1px solid var(--line);border-radius:10px;padding:0 14px}.journal-scene summary span,.journal-scene summary strong,.journal-scene summary small{display:block;margin:4px 0}.journal-scene summary strong{color:var(--ink);font-weight:500}.journal-scene summary small,.journal-note{font-size:.75rem;color:var(--muted)}.journal-scene .narration p{color:#aab9c9}.journal-scene .log-entry:last-child{border:0}

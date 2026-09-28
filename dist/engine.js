@@ -7,7 +7,7 @@ window.Game=(()=>{
  function availability(s,c){if(over(s))return'마지막 저녁';if(s.lastVisit[c.id]===day(s))return'오늘은 만났어요';if(!c.hours.includes(slot(s)))return c.hours[0]===0?'오후에 만나요':'저녁에 만나요';return null;}
  function canConfess(s,id){return!!byId(id)&&!s.scene&&s.affinity[id]>=MAX;}
  const bond=(s,id,n)=>{s.affinity[id]=Math.max(0,Math.min(MAX,s.affinity[id]+n));};
- function log(s){const sc=s.scene,l=sc?.lines[sc.step];if(l)s.log.push({speaker:l[0]==='나'?s.name:l[0],text:l[1],day:day(s)});}
+ function log(s){const sc=s.scene,l=sc?.lines[sc.step];if(l)s.log.push({speaker:l[0]==='나'?s.name:l[0],text:l[1],day:day(s),characterId:sc.id,sceneTitle:sc.title,sceneTurn:s.turn});}
  function scene(s,c,{title,lines,options=null,type='event',place,mood,index,delta=0}){s.scene={id:c.id,title,lines,options,type,step:0,choice:!!options,place:place||c.home,mood:mood??0,index:index??s.progress[c.id],delta};log(s);return s;}
  function visit(s,id){const c=byId(id);if(!c||s.scene||availability(s,c))return false;const p=s.progress[id];if(p>=c.events.length)return false;const e=c.events[p];const raw=e[6]||[e[1],e[2],e[3]];const lines=raw.map((v,i)=>[i%2?c.name:'',v]);const echo=e[7];if(p===0)lines.push(['',c.clue]);if(echo&&[0,1,2].includes(s.choices[id][echo.at]))lines.splice(1,0,['',s.choices[id][echo.at]===2?echo.yes:echo.no]);
  const options=[{text:e[4][0],score:e[4][1],reply:e[4][2]},{text:e[5][0],score:e[5][1],reply:e[5][2]}];if((p+CAST.indexOf(c))%2)options.reverse();
@@ -17,11 +17,23 @@ window.Game=(()=>{
  function gift(s,id,gid){const c=byId(id),g=GIFTS.find(g=>g.id===gid);if(!c||!g||s.scene||availability(s,c)||s.progress[id]<1||s.gifts[id]||s.money<g.cost)return false;s.money-=g.cost;s.gifts[id]=true;const good=c.gift===gid,particle=(g.name.charCodeAt(g.name.length-1)-0xAC00)%28?'을':'를';bond(s,id,8);
  scene(s,c,{type:'gift',title:'생각나서 가져왔어',mood:8,lines:[['',`${g.name}${particle} 건넸다. ${good?'지난 대화에서 알게 된 취향을 떠올리며 고른 선물이다.':'그 사람에게 어울릴 것 같아서 골라봤다.'}`],[c.name,CHARACTER_REACTIONS[id][good?'giftGood':'giftOther']]],delta:8});return true;}
  function choose(s,i){const sc=s.scene;if(!sc?.choice||sc.step!==sc.lines.length||!Number.isInteger(i))return false;const o=sc.options[i];if(!o)return false;const delta=sc.type==='date'?(o.score===2?10:-2):(o.score===2?(sc.index===7?16:12):o.score===1?6:-3);bond(s,sc.id,delta);if(sc.type==='event')s.choices[sc.id][sc.index]=o.score;
- s.log.push({speaker:s.name,text:o.text,day:day(s)});sc.delta=delta;sc.lines=[[byId(sc.id).name,o.reply],['',CHARACTER_REACTIONS[sc.id][delta>0?'positive':'negative']]];sc.step=0;sc.choice=false;if(sc.mood>=6)sc.mood=delta>0?8:7;else if(sc.mood<2)sc.mood=delta>0?0:1;log(s);return true;}
+ s.log.push({speaker:s.name,text:o.text,day:day(s),characterId:sc.id,sceneTitle:sc.title,sceneTurn:s.turn});sc.delta=delta;sc.lines=[[byId(sc.id).name,o.reply],['',CHARACTER_REACTIONS[sc.id][delta>0?'positive':'negative']]];sc.step=0;sc.choice=false;if(sc.mood>=6)sc.mood=delta>0?8:7;else if(sc.mood<2)sc.mood=delta>0?0:1;log(s);return true;}
  function next(s){const sc=s.scene;if(!sc)return false;if(sc.step<sc.lines.length-1){sc.step++;log(s);}else if(sc.choice){sc.step=sc.lines.length;}else{const c=byId(sc.id);if(sc.type==='event')s.progress[sc.id]=Math.max(s.progress[sc.id],sc.index+1);if(sc.type==='date')s.dates[sc.id]=Math.max(s.dates[sc.id],sc.index+1);s.journal.push({id:sc.id,title:sc.title,day:day(s),type:sc.type});s.lastVisit[sc.id]=day(s);s.turn=Math.min(TOTAL,s.turn+1);s.scene=null;}return true;}
  function pass(s,work=false){if(s.scene||over(s))return false;if(work)s.money+=6000;s.journal.push({id:'self',title:work?'동네 서점 정리 아르바이트 · +6,000원':'집에서 쉬며 다음 약속을 기다렸다',day:day(s),type:'rest'});s.turn++;return true;}
  function finish(s,id){if(s.scene||s.ending)return false;const c=byId(id);if(id==='solo'){if(!over(s))return false;s.ending={id,kind:'normal',early:false};return true;}if(!c)return false;
  if(canConfess(s,id)){s.ending={id,kind:'good',early:s.progress[id]<c.events.length};return true;}if(s.progress[id]>=c.events.length||(over(s)&&s.progress[id]>=3)){s.ending={id,kind:'normal',early:false};return true;}return false;}
+ function conversations(s,id='all'){
+ const groups=new Map();for(const l of s.log){
+ const visits=s.journal.filter(j=>j.day===l.day&&byId(j.id));if(s.scene&&day(s)===l.day)visits.push({id:s.scene.id,title:s.scene.title});
+ const ids=[...new Set(visits.map(j=>j.id))];
+ const inferred=CAST.find(c=>c.name===l.speaker)?.id;
+ const characterId=l.characterId||(ids.length===1?ids[0]:inferred)||null;
+ if(id!=='all'&&characterId!==id)continue;
+ const title=l.sceneTitle||(ids.length===1&&visits.length===1?visits[0].title:'이전 대화 기록');
+ const key=l.sceneTurn!==undefined?`${characterId}:${l.sceneTurn}`:`old:${l.day}:${characterId}`;
+ if(!groups.has(key))groups.set(key,{characterId,day:l.day,title,lines:[]});groups.get(key).lines.push(l);
+ }return [...groups.values()];
+ }
  function choosePetName(s,name){if(s.ending?.id!=='siho'||s.ending.kind!=='good'||!['여보','오빠'].includes(name))return false;s.ending.petName=name;return true;}
  function endingPages(s){const e=s.ending;if(e?.kind!=='good'||typeof ROMANCE_ENDINGS==='undefined'||!ROMANCE_ENDINGS[e.id])return null;const pages=clone(ROMANCE_ENDINGS[e.id]);if(e.id==='siho'){
  const name=e.petName;
@@ -40,6 +52,7 @@ window.Game=(()=>{
  if(!s||s.version!==2||!txt(s.name)||s.name.length>16||!num(s.turn,TOTAL)||!num(s.money,1000000))return false;
  if(!CAST.every(c=>num(s.progress?.[c.id],c.events.length)&&num(s.affinity?.[c.id],MAX)&&num(s.dates?.[c.id],2)&&typeof s.gifts?.[c.id]==='boolean'&&num(s.lastVisit?.[c.id],WORLD.days,-1)&&Array.isArray(s.choices?.[c.id])&&s.choices[c.id].length<=8&&s.choices[c.id].every(v=>v===null||[0,1,2].includes(v))))return false;
  if(!Array.isArray(s.log)||s.log.length>5000||!s.log.every(l=>l&&txt(l.speaker)&&txt(l.text)&&num(l.day,28,1)))return false;
+ if(s.log.some(l=>(l.characterId!==undefined&&!byId(l.characterId))||(l.sceneTitle!==undefined&&!txt(l.sceneTitle))||(l.sceneTurn!==undefined&&!num(l.sceneTurn,TOTAL))))return false;
  if(!Array.isArray(s.journal)||s.journal.length>100||!s.journal.every(j=>j&&(j.id==='self'||byId(j.id))&&txt(j.title)&&num(j.day,28,1)))return false;
  const sc=s.scene;if(sc){if(over(s)||!byId(sc.id)||!['event','date','gift'].includes(sc.type)||!txt(sc.title)||!num(sc.index,8)||typeof sc.choice!=='boolean'||!num(sc.mood,8)||!WORLD.locations.includes(sc.place))return false;
  if(!Array.isArray(sc.lines)||sc.lines.length<1||sc.lines.length>12||!sc.lines.every(l=>Array.isArray(l)&&l.length===2&&l.every(txt))||!num(sc.step,sc.lines.length)||(!sc.choice&&sc.step===sc.lines.length))return false;
@@ -48,5 +61,5 @@ window.Game=(()=>{
  if(s.ending?.petName!==undefined&&(s.ending.id!=='siho'||s.ending.kind!=='good'||!['여보','오빠'].includes(s.ending.petName)))return false;
  if(s.ending?.page!==undefined&&!num(s.ending.page,2))return false;
  if(s.ending&&(sc||!['good','normal'].includes(s.ending.kind)||(s.ending.id!=='solo'&&!byId(s.ending.id))||(s.ending.kind==='good'&&s.affinity[s.ending.id]<MAX)))return false;return true;}
- return{TOTAL,MAX,byId,fresh,day,slot,over,availability,canConfess,visit,outing,gift,next,choose,pass,finish,choosePetName,endingPages,endingInfo,migrate,valid};
+ return{TOTAL,MAX,byId,fresh,day,slot,over,availability,canConfess,visit,outing,gift,next,choose,pass,finish,conversations,choosePetName,endingPages,endingInfo,migrate,valid};
 })();
