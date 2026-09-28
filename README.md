@@ -6,4 +6,6 @@
 - 검증: `node tests/story.test.cjs` 및 `node tests/visual-state.test.cjs`
 - 진행 상황: 브라우저 저장소, 설정에서 파일 내보내기 지원
 
-GitHub 저장소는 비공개입니다. Pages 공개 범위와 계정 지원 여부는 별도로 확인합니다.
+게임: https://thankyoujerry.github.io/project-i-romance/
+
+저장소와 게임은 공개입니다. main 브랜치에 변경을 올리면 테스트 통과 후 dist 폴더를 GitHub Pages에 배포합니다.
