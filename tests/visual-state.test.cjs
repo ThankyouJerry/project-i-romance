@@ -33,3 +33,14 @@ assert.equal(ROMANCE_ENDINGS.yui[0][0],'home');
 console.log('PASS: corrected chapter and ending locations survive scene construction and save migration.');
 
 assert.equal(G.byId('popo').events.length,8);assert.equal(G.byId('ori').events.length,8);assert.equal(G.byId('popo').moods[7],5);assert(G.byId('popo').moods.slice(0,7).every(n=>n!==5));assert.equal(G.byId('ori').moods[7],5);
+
+// Regression: fixed rectangular thirds exposed the neighboring Rose hair in episode 2.
+const clipContext={window:{}};vm.runInNewContext(fs.readFileSync('dist/sprite-clips.js','utf8'),clipContext);
+const clips=clipContext.window.SPRITE_CLIPS;
+function inCut(key,x,y){const points=clips[key].split(' ').map(p=>p.split(',').map(Number));let inside=false;for(let i=0,j=points.length-1;i<points.length;j=i++){const [ax,ay]=points[i],[bx,by]=points[j];if((ay>y)!==(by>y)&&x<(bx-ax)*(y-ay)/(by-ay)+ax)inside=!inside}return inside;}
+assert.equal(Object.keys(clips).length,99);
+for(const c of CAST)for(const f of ['sprite','role','wardrobe'])for(let i=0;i<3;i++){const key=`${f}-${c.id}-${i}`;assert(clips[key],key);assert(inCut(key,i*512+256,512),key+' retains central figure');}
+for(const [x,y] of [[516,379],[534,458],[537,538],[1021,343],[1021,376]])assert(!inCut('role-rose-1',x,y),'neighbor hair must not render');
+for(const [x,y] of [[866,309],[685,530],[637,755]])assert(inCut('role-rose-1',x,y),'Rose must remain visible');
+const html=fs.readFileSync('dist/index.html','utf8');assert(html.indexOf('sprite-clips.js')<html.indexOf('app.js'));
+console.log('PASS: all 99 sprite cuts have rendering boundaries; Rose episode 2 excludes both neighbors and retains its own figure.');

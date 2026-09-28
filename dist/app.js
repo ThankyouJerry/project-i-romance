@@ -7,7 +7,11 @@ function write(k,v){try{localStorage.setItem(KEY+k,JSON.stringify(v));return tru
 function toast(t){$('#toast').textContent=t;$('#toast').classList.add('show');clearTimeout(timer);timer=setTimeout(()=>$('#toast').classList.remove('show'),3500)}
 function persist(){if(state)write('-auto',state)}
 function endings(){const a=read('-endings',[]);return Array.isArray(a)?[...new Set(a.filter(x=>x==='solo-normal'||CAST.some(c=>x===c.id+'-good'||x===c.id+'-normal')))]:[]}
-function sprite(c,look=c.portraitMood??0,extra=''){return `<span class="sprite ${extra}" role="img" aria-label="${c.name} ${LOOK_LABELS[look]}" style="--sprite:url('assets/generated/${look>=6?'role':look>=3?'wardrobe':'sprite'}-${c.id}.webp?v=7');--frame:${(look%3)*50}%"></span>`}
+let spriteInstance=0;
+function sprite(c,look=c.portraitMood??0,extra=''){
+ const family=look>=6?'role':look>=3?'wardrobe':'sprite',frame=look%3,key=family+'-'+c.id+'-'+frame,clip='sprite-clip-'+(++spriteInstance);
+ return `<svg class="sprite ${extra}" role="img" aria-label="${c.name} ${LOOK_LABELS[look]}" viewBox="${frame*512} 0 512 1024" xmlns="http://www.w3.org/2000/svg"><defs><clipPath id="${clip}" clipPathUnits="userSpaceOnUse"><polygon points="${SPRITE_CLIPS[key]}"/></clipPath></defs><image href="assets/generated/${family}-${c.id}.webp?v=7" x="0" y="0" width="1536" height="1024" clip-path="url(#${clip})"/></svg>`;
+}
 function modal(html){$('#modalBody').innerHTML=html;if(!$('#modal').open)$('#modal').showModal()}
 function close(){if($('#modal').open)$('#modal').close()}
 function header(){return `<header class="topbar"><button class="brand" data-action="title">우리 동네, 열한 번의 우연</button>${state?`<div class="clock">${G.day(state)}일차 <b>${G.slot(state)?'저녁':'오후'}</b> <span>${state.money.toLocaleString()}원</span></div>`:''}<nav class="tools" aria-label="게임 메뉴"><button data-action="saves">저장</button><button data-action="journal">수첩</button><button data-action="settings">설정</button></nav></header>`}
