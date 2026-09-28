@@ -10,9 +10,9 @@ function endings(){const a=read('-endings',[]);return Array.isArray(a)?[...new S
 let spriteInstance=0;
 function sprite(c,look=c.portraitMood??0,extra=''){
  if(look===0||look===1)look+=6;
- if(c.id==='ori'&&look===3)return `<img class="sprite ${extra}" src="assets/generated/ori-home-suit.webp?v=16" alt="오리고기 집에서 입는 베스트 정장">`;
+ if(c.id==='ori'&&look===3)return `<img class="sprite ${extra}" src="assets/generated/ori-home-suit.webp?v=17" alt="오리고기 집에서 입는 베스트 정장">`;
  const family=look>=6?'role':look>=3?'wardrobe':'sprite',frame=look%3,key=family+'-'+c.id+'-'+frame,clip='sprite-clip-'+(++spriteInstance);
- return `<svg class="sprite ${extra}" role="img" aria-label="${c.name} ${LOOK_LABELS[look]}" viewBox="${frame*512} 0 512 1024" xmlns="http://www.w3.org/2000/svg"><defs><clipPath id="${clip}" clipPathUnits="userSpaceOnUse"><polygon points="${SPRITE_CLIPS[key]}"/></clipPath></defs><image href="assets/generated/${family}-${c.id}.webp?v=7" x="0" y="0" width="1536" height="1024" clip-path="url(#${clip})"/></svg>`;
+ return `<svg class="sprite ${extra}" role="img" aria-label="${c.name} ${LOOK_LABELS[look]}" viewBox="${frame*512} 0 512 1024" xmlns="http://www.w3.org/2000/svg"><defs><clipPath id="${clip}" clipPathUnits="userSpaceOnUse"><polygon points="${SPRITE_CLIPS[key]}"/></clipPath></defs><image href="assets/generated/${family}-${c.id}.webp?v=${c.id==='ori'?17:7}" x="0" y="0" width="1536" height="1024" clip-path="url(#${clip})"/></svg>`;
 }
 function modal(html){$('#modalBody').innerHTML=html;if(!$('#modal').open)$('#modal').showModal()}
 function close(){if($('#modal').open)$('#modal').close()}
