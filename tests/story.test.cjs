@@ -63,3 +63,6 @@ console.log('PASS: wardrobe discovery, locked late outfits, ending-page unlocks,
 for(const c of CAST){const recovered=Gallery.fromEndings([c.id+'-good']);assert(recovered.includes(c.id+':'+c.moods[0]));for(const p of ctx.ROMANCE_ENDINGS[c.id])assert(recovered.includes(c.id+':'+(p[3]??2)));assert(recovered.every(k=>k.startsWith(c.id+':')));assert(Gallery.fromEndings([c.id+'-normal']).includes(c.id+':'+(c.normalMood??2)));assert.equal(Gallery.merge(recovered,recovered).length,recovered.length);}
 assert.equal(Gallery.fromEndings(['solo-normal','unknown-good']).length,0);assert.equal(Gallery.fromEndings([]).length,0);
 console.log('PASS: legacy ending-only collection restores earned outfits for all 11 characters without unlocking unrelated routes.');
+
+let wardrobeTotal=0;for(const c of CAST){const groups=Gallery.outfits(c);assert.equal(groups.length,5,c.id);wardrobeTotal+=groups.length;const reachable=[...c.moods,...c.outingMoods,...ctx.ROMANCE_ENDINGS[c.id].map(p=>p[3]??2),c.normalMood??2,8];for(const group of groups)assert(group.looks.some(n=>reachable.includes(n)),c.id+' '+group.name+' must be obtainable');assert.equal(new Set(groups.flatMap(g=>g.looks)).size,9);}
+assert.equal(wardrobeTotal,55);console.log('PASS: exactly 5 obtainable outfits per member, 55 total, all expression frames grouped without extra outfit counts.');

@@ -83,7 +83,7 @@ ROMANCE_ENDINGS.popo=[['park','주문서 밖의 고백',`포포포포가 카디�
 “응. 오늘부터다. 이건 서비스로 하는 말 아니다.”
 내가 손을 내밀자 그녀가 잡았다. 잠깐 쑥스러워하더니 손가락 사이까지 다시 맞잡았다.
 “다음엔 트레이닝복 입고 와도 되제?” “그럼. 어떤 옷이든 너 만나러 오는 건 같아.”
-그녀가 웃으며 내 어깨에 살짝 기대었다.`,5],['seaside','첫 데이트의 속도',`연인이 된 뒤 첫 데이트 날, 포포포포는 같은 원피스에 편한 신발을 골라 신었다.
+그녀가 웃으며 내 어깨에 살짝 기대었다.`,5],['seaside','첫 데이트의 속도',`연인이 된 뒤 첫 데이트 날, 포포포포는 하늘색 프릴 의상에 편한 신발을 골라 신었다.
 “오늘은 조금 꾸미고 싶었다. 대신 발 아프면 바로 쉰다.”
 “그럼 걷다가 마음에 드는 데 앉자.”
 우리는 바닷바람을 맞으며 손을 잡았다. 그녀는 사진을 찍자고 먼저 말하고는 내 팔 가까이 붙었다.
@@ -174,7 +174,7 @@ ROMANCE_ENDINGS.ori=[['park','오늘은 내 이야기',`오리고기가 카디�
 “저도 좋아해요. 우리 사귀어요.”
 그녀가 내 손을 잡고 다시 물었다. “그럼 내일도 나 보러 오는 거죠?”
 “네. 정장을 입고 있어도, 오늘 옷을 입고 있어도요.”
-그녀가 웃으며 고개를 끄덕였다. 오늘의 대답에는 다시 찍을 필요가 없었다.`,5],['cafe','함께 고른 오후',`첫 데이트에 오리고기는 원피스와 작은 가방을 골랐다. 작업용 노트북은 집에 두고 왔다.
+그녀가 웃으며 고개를 끄덕였다. 오늘의 대답에는 다시 찍을 필요가 없었다.`,5],['cafe','함께 고른 오후',`첫 데이트에 오리고기는 리본을 단 흰 블라우스와 치마, 작은 가방을 골랐다. 작업용 노트북은 집에 두고 왔다.
 “오늘 가방은 가벼워요. 자꾸 뭔가 빠뜨린 것 같아서 확인했는데, 다 두고 와도 되는 거였네요.”
 우리는 재즈가 흐르는 카페 창가에 앉았다. 그녀는 곡이 바뀔 때마다 귀를 기울였고, 나는 좋아하는 부분을 알려달라며 조금 가까이 앉았다.
 “혼자 들을 땐 늘 여기서 한 번 더 돌려 들었어요. 오늘은 네 표정도 보느라 놓쳤네.”
@@ -189,9 +189,13 @@ ROMANCE_ENDINGS.ori=[['park','오늘은 내 이야기',`오리고기가 카디�
 문을 나서기 전 그녀가 내 손을 당겼다. “오늘도 와줘서 고마워요, 내 애인.”
 나는 한 번 더 손을 꼭 잡았다. 내일 만나자는 말이 자연스러운 약속이 되었다.`,3]];
 s.moods[7]=5;ROMANCE_ENDINGS.siho[1][3]=5;
-// Every character wears their designated date outfit on both planned outings.
+// Planned outings use date clothing; the flower walk uses outdoor clothing.
 // Popo deliberately reserves the feminine dress for episode 8 and the romance ending.
 for(const c of CAST){if(!['popo','ori'].includes(c.id))c.outingMoods=[5,5];c.normalMood=c.id==='ori'?6:c.id==='popo'?6:2;}
+// Five distinct outfits per character, each available in the story.
+CAST.find(c=>c.id==='yui').outingMoods[1]=4;
+ROMANCE_ENDINGS.popo[1][3]=2;
+ROMANCE_ENDINGS.ori[1][3]=2;
 CHARACTER_REACTIONS.popo={giftGood:'이건 내 쉬는 시간에 쓸게. 기억해줬네. 고맙다.',giftOther:'내 생각나서 샀나? 좋다! 고맙다. 니한테 받으니까 더 좋네.',positive:'그녀의 웃음에서 연습한 인사의 억양이 빠졌다. 나를 향한 말이 조금 더 편해졌다.',negative:'그녀는 잠시 말을 골랐다. 나는 대답을 서두르지 않고 기다렸다.'};
 CHARACTER_REACTIONS.ori={giftGood:'좋아하는 재즈 곡을 적어둘게요. 같이 듣고 싶은 곡에는 표시도 하고요. 기억해줘서 고마워요.',giftOther:'마음에 들어요. 저를 생각해서 골라줬다는 게 참 좋네요. 고마워요. 오늘은 재즈도 평소보다 즐겁게 들리겠어요.',positive:'그녀가 안경을 고쳐 쓰고 웃었다. 다음 약속을 먼저 묻는 목소리가 조금 가벼워졌다.',negative:'그녀는 바로 웃어넘기지 않았다. 무슨 마음이었는지 말할 시간을 기다렸다.'};
 })();
