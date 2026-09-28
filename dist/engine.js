@@ -2,7 +2,11 @@
 window.Game=(()=>{
  const TOTAL=WORLD.days*2,MAX=WORLD.maxBond,ROMANCE_THRESHOLD=90, byId=id=>CAST.find(c=>c.id===id),clone=x=>JSON.parse(JSON.stringify(x));
  const all=val=>Object.fromEntries(CAST.map(c=>[c.id,typeof val==='function'?val():val]));
- function fresh(name){return{version:2,name:String(name||'이웃').trim().slice(0,16)||'이웃',turn:0,money:WORLD.startingMoney,progress:all(0),affinity:all(0),choices:all(()=>[]),dates:all(0),gifts:all(false),lastVisit:all(-1),scene:null,journal:[],log:[],ending:null};}
+ const FANDOM_BONUS=10;
+ const fandoms={honey:['허니비'],ohwayo:['하용'],dragon:['쑥떡','흑떡'],yui:['아담','특대담'],aya:['우유'],mone:['네모','동글이'],siyo:['바바'],rose:['마리'],popo:['포리'],siho:['신자','뽀신자']};
+ const playerName=name=>String(name||'이웃').normalize('NFC').trim().slice(0,16)||'이웃';
+ function nameBonuses(name){const value=playerName(name);return CAST.filter(c=>fandoms[c.id]?.some(word=>value.includes(word))).map(c=>c.id);}
+ function fresh(name){const value=playerName(name),bonus=nameBonuses(value),affinity=all(0);for(const id of bonus)affinity[id]=FANDOM_BONUS;return{version:2,name:value,turn:0,money:WORLD.startingMoney,progress:all(0),affinity,choices:all(()=>[]),dates:all(0),gifts:all(false),lastVisit:all(-1),scene:null,journal:[],log:[],ending:null};}
  const day=s=>Math.min(WORLD.days,Math.floor(s.turn/2)+1),slot=s=>s.turn%2,over=s=>s.turn>=TOTAL;
  function availability(s,c){if(over(s))return'마지막 저녁';if(s.lastVisit[c.id]===day(s))return'오늘은 만났어요';if(!c.hours.includes(slot(s)))return c.hours[0]===0?'오후에 만나요':'저녁에 만나요';return null;}
  function canConfess(s,id){return!!byId(id)&&!s.scene&&s.affinity[id]>=ROMANCE_THRESHOLD;}
@@ -61,5 +65,5 @@ window.Game=(()=>{
  if(s.ending?.petName!==undefined&&(s.ending.id!=='siho'||s.ending.kind!=='good'||!['여보','오빠'].includes(s.ending.petName)))return false;
  if(s.ending?.page!==undefined&&!num(s.ending.page,2))return false;
  if(s.ending&&(sc||!['good','normal'].includes(s.ending.kind)||(s.ending.id!=='solo'&&!byId(s.ending.id))||(s.ending.kind==='good'&&s.affinity[s.ending.id]<ROMANCE_THRESHOLD)))return false;return true;}
- return{TOTAL,MAX,ROMANCE_THRESHOLD,byId,fresh,day,slot,over,availability,canConfess,visit,outing,gift,next,choose,pass,finish,conversations,choosePetName,endingPages,endingInfo,migrate,valid};
+ return{TOTAL,MAX,ROMANCE_THRESHOLD,FANDOM_BONUS,nameBonuses,byId,fresh,day,slot,over,availability,canConfess,visit,outing,gift,next,choose,pass,finish,conversations,choosePetName,endingPages,endingInfo,migrate,valid};
 })();

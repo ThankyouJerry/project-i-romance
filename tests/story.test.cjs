@@ -48,3 +48,9 @@ console.log('PASS: character journal keeps narration, player replies and scene t
 
 for(const c of CAST)for(const amount of [89,90,99,100]){const s=G.fresh('고백 기준');s.progress[c.id]=2;s.affinity[c.id]=amount;assert.equal(G.canConfess(s,c.id),amount>=90);assert.equal(G.finish(s,c.id),amount>=90);if(amount>=90){assert.equal(s.ending.kind,'good');assert(G.migrate(clone(s)));}else{const bad=clone(s);bad.ending={id:c.id,kind:'good'};assert.equal(G.migrate(bad),null);}}
 console.log('PASS: all 11 romance thresholds at 89/90/99/100, early endings and saved romance validation.');
+
+const fanCases={honey:['허니비'],ohwayo:['하용'],dragon:['쑥떡','흑떡'],yui:['아담','특대담'],aya:['우유'],mone:['네모','동글이'],siyo:['바바'],rose:['마리'],popo:['포리'],siho:['신자','뽀신자']};
+for(const [id,words] of Object.entries(fanCases))for(const word of words){const s=G.fresh('행복한'+word+'입니다');for(const c of CAST)assert.equal(s.affinity[c.id],c.id===id?10:0);assert(G.migrate(clone(s)));const old=clone(s);old.affinity[id]=3;assert.equal(G.migrate(old).affinity[id],3);}
+assert.equal(G.fresh('쑥떡흑떡').affinity.dragon,10);assert.equal(G.fresh('신자뽀신자').affinity.siho,10);const mixed=G.fresh('허니비포리');assert.equal(mixed.affinity.honey,10);assert.equal(mixed.affinity.popo,10);assert.equal(G.fresh('허니비'.normalize('NFD')).affinity.honey,10);assert.equal(G.fresh('가'.repeat(16)+'허니비').affinity.honey,0);assert(Object.values(G.fresh('오리고기').affinity).every(v=>v===0));assert(Object.values(G.fresh('').affinity).every(v=>v===0));
+const oldFan=clone(old);oldFan.name='허니비';assert.equal(G.migrate(oldFan).affinity.honey,36);
+console.log('PASS: all fandom aliases, substring and normalized names, multiple fandoms, no stacking, stored-name limit, no Ori bonus, and no retroactive save bonus.');
