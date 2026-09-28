@@ -23,6 +23,7 @@ jobs:
           node-version: 22
       - run: node tests/story.test.cjs
       - run: node tests/visual-state.test.cjs
+      - run: node tests/gift-notes.test.cjs
       - uses: actions/configure-pages@v5
       - uses: actions/upload-pages-artifact@v3
         with:

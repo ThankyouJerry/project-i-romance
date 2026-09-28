@@ -1,6 +1,6 @@
 const fs=require('node:fs'),vm=require('node:vm'),assert=require('node:assert/strict');
 const ctx=vm.createContext({window:{}});
-for(const f of ['story','chapters','chapters-more','world','endings','wardrobe','reactions','route-revisions','engine']){vm.runInContext(fs.readFileSync(`dist/${f}.js`,'utf8'),ctx);Object.assign(ctx,ctx.window)}
+for(const f of ['story','chapters','chapters-more','world','endings','wardrobe','reactions','route-revisions','gift-memories','engine']){vm.runInContext(fs.readFileSync(`dist/${f}.js`,'utf8'),ctx);Object.assign(ctx,ctx.window)}
 const {CAST,Game:G,WORLD,ROMANCE_ENDINGS}=ctx;
 const usedPlaces=new Set();
 for(const c of CAST){

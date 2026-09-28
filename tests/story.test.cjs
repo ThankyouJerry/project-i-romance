@@ -1,6 +1,6 @@
 const {readFileSync}=require('node:fs'),vm=require('node:vm'),assert=require('node:assert/strict');
 const ctx=vm.createContext({window:{}});
-for(const file of ['story','chapters','chapters-more','world','endings','wardrobe','reactions','route-revisions','engine']){vm.runInContext(readFileSync(`dist/${file}.js`,'utf8'),ctx);for(const k of ['CAST','EXTRA_CHAPTERS','WORLD','GIFTS','ROMANCE_ENDINGS','LOOK_LABELS','CHARACTER_REACTIONS','Game'])if(ctx.window[k])ctx[k]=ctx.window[k];}
+for(const file of ['story','chapters','chapters-more','world','endings','wardrobe','reactions','route-revisions','gift-memories','engine']){vm.runInContext(readFileSync(`dist/${file}.js`,'utf8'),ctx);for(const k of ['CAST','EXTRA_CHAPTERS','WORLD','GIFTS','ROMANCE_ENDINGS','LOOK_LABELS','CHARACTER_REACTIONS','Game'])if(ctx.window[k])ctx[k]=ctx.window[k];}
 const {CAST,Game:G}=ctx,clone=x=>JSON.parse(JSON.stringify(x));
 function available(s,c){let guard=0;while(G.availability(s,c)&&!G.over(s)&&guard++<5)G.pass(s);assert.equal(G.availability(s,c),null);}
 function complete(s,best=true){let guard=0;while(s.scene&&guard++<30){if(s.scene.choice&&s.scene.step===s.scene.lines.length){const scores=s.scene.options.map(o=>o.score);G.choose(s,scores.indexOf(best?Math.max(...scores):Math.min(...scores)));}else G.next(s);assert.ok(G.valid(s),'save remains valid');}assert.equal(s.scene,null);}
@@ -43,7 +43,7 @@ console.log('PASS: Siho pet-name choices, three ending scenes, save compatibilit
 const notebook=G.fresh('수첩');for(const id of ['aya','siho']){const c=G.byId(id);available(notebook,c);assert(G.visit(notebook,id));complete(notebook);}
 for(const id of ['aya','siho']){const groups=G.conversations(notebook,id);assert.equal(groups.length,1);assert.equal(groups[0].title,G.byId(id).events[0][0]);assert(groups[0].lines.some(l=>l.speaker==='수첩'));assert(groups[0].lines.some(l=>!l.speaker));assert(groups[0].lines.every(l=>l.characterId===id));}
 assert.equal(G.conversations(notebook).reduce((n,g)=>n+g.lines.length,0),notebook.log.length);assert(G.migrate(clone(notebook)));
-const legacy=clone(notebook);for(const l of legacy.log){delete l.characterId;delete l.sceneTitle;delete l.sceneTurn;}assert(G.migrate(legacy));assert.equal(G.conversations(legacy).reduce((n,g)=>n+g.lines.length,0),legacy.log.length);assert(G.conversations(legacy,'siho').every(g=>g.characterId==='siho'));
+const legacy=clone(notebook);for(const l of legacy.log){delete l.characterId;delete l.sceneTitle;delete l.sceneTurn;delete l.observation;}assert(G.migrate(legacy));assert.equal(G.conversations(legacy).reduce((n,g)=>n+g.lines.length,0),legacy.log.length);assert(G.conversations(legacy,'siho').every(g=>g.characterId==='siho'));
 console.log('PASS: character journal keeps narration, player replies and scene titles; legacy logs remain accessible without duplication.');
 
 for(const c of CAST)for(const amount of [89,90,99,100]){const s=G.fresh('고백 기준');s.progress[c.id]=2;s.affinity[c.id]=amount;assert.equal(G.canConfess(s,c.id),amount>=90);assert.equal(G.finish(s,c.id),amount>=90);if(amount>=90){assert.equal(s.ending.kind,'good');assert(G.migrate(clone(s)));}else{const bad=clone(s);bad.ending={id:c.id,kind:'good'};assert.equal(G.migrate(bad),null);}}
