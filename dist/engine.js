@@ -12,11 +12,11 @@ window.Game=(()=>{
  function canConfess(s,id){return!!byId(id)&&!s.scene&&s.affinity[id]>=ROMANCE_THRESHOLD;}
  const bond=(s,id,n)=>{s.affinity[id]=Math.max(0,Math.min(MAX,s.affinity[id]+n));};
  function log(s){const sc=s.scene,l=sc?.lines[sc.step];if(l)s.log.push({speaker:l[0]==='나'?s.name:l[0],text:l[1],day:day(s),characterId:sc.id,sceneTitle:sc.title,sceneTurn:s.turn});}
- function scene(s,c,{title,lines,options=null,type='event',place,mood,index,delta=0}){s.scene={id:c.id,title,lines,options,type,step:0,choice:!!options,place:place||c.home,mood:mood??0,index:index??s.progress[c.id],delta};log(s);return s;}
- function visit(s,id){const c=byId(id);if(!c||s.scene||availability(s,c))return false;const p=s.progress[id];if(p>=c.events.length)return false;const e=c.events[p];const raw=e[6]||[e[1],e[2],e[3]];const lines=raw.map((v,i)=>[i%2?c.name:'',v]);const echo=e[7];if(p===0){const memory=window.GIFT_MEMORIES?.[id];lines.push(memory?[c.name,memory.quote]:['',c.clue]);}if(echo&&[0,1,2].includes(s.choices[id][echo.at]))lines.splice(1,0,['',s.choices[id][echo.at]===2?echo.yes:echo.no]);
+ function scene(s,c,{title,lines,options=null,type='event',place,mood,index,delta=0}){s.scene={id:c.id,title,lines,options,type,step:0,choice:!!options,place:place||c.home,mood:mood??0,index:index??s.progress[c.id],delta,logStart:s.log.length};log(s);return s;}
+ function visit(s,id){const c=byId(id);if(!c||s.scene||availability(s,c))return false;const p=s.progress[id];if(p>=c.events.length)return false;const e=c.events[p];const variant=window.STORY_VARIANTS?.[id]?.[p],previous=variant?s.choices[id][variant.at]:undefined;const raw=variant&&[0,1,2].includes(previous)?(previous===2?variant.yes:variant.no):(e[6]||[e[1],e[2],e[3]]);const lines=raw.map((v,i)=>[i%2?c.name:'',v]);const echo=e[7];if(p===0){const memory=window.GIFT_MEMORIES?.[id];lines.push(memory?[c.name,memory.quote]:['',c.clue]);}const echoes=(Array.isArray(echo)?echo:echo?[echo]:[]).filter(x=>[0,1,2].includes(s.choices[id][x.at])).map(x=>['',s.choices[id][x.at]===2?x.yes:x.no]);lines.splice(1,0,...echoes);
  const options=[{text:e[4][0],score:e[4][1],reply:e[4][2]},{text:e[5][0],score:e[5][1],reply:e[5][2]}];if((p+CAST.indexOf(c))%2)options.reverse();
  scene(s,c,{title:e[0],lines,options,index:p,place:c.places[p],mood:c.moods[p]});return true;}
- function outing(s,id){const c=byId(id),n=s.dates[id];if(!c||s.scene||availability(s,c)||s.progress[id]<1||n>=c.outings.length||s.money<2000)return false;const o=c.outings[n];s.money-=2000;
+ function outing(s,id){const c=byId(id),n=s.dates[id];if(!c||s.scene||availability(s,c)||s.progress[id]<(c.outingMinProgress?.[n]||1)||n>=c.outings.length||s.money<2000)return false;const o=c.outings[n];s.money-=2000;
  scene(s,c,{type:'date',index:n,title:o[0],place:c.outingPlaces[n],mood:c.outingMoods[n],lines:[['',o[1]],[c.name,o[2]]],options:o[3].map((text,i)=>({text,score:i===o[4]?2:0,reply:i===o[4]?o[5]:o[6]}))});return true;}
  function giftMemory(s,id){const memory=window.GIFT_MEMORIES?.[id];if(!memory||!byId(id))return null;const heard=s.log.some(l=>l.characterId===id&&l.text===memory.quote);if(!heard&&s.progress[id]<1)return null;return heard?clone(memory):{...clone(memory),quote:'',clue:byId(id).clue,reply:CHARACTER_REACTIONS[id].giftOther};}
  function observations(s,id='all'){return s.log.filter(l=>l.observation&&(id==='all'||l.characterId===id)).map(l=>({characterId:l.characterId,day:l.day,title:l.sceneTitle||'함께한 대화',choice:l.text,...clone(l.observation)}));}
@@ -28,6 +28,13 @@ window.Game=(()=>{
  function pass(s,work=false){if(s.scene||over(s))return false;if(work)s.money+=6000;s.journal.push({id:'self',title:work?'동네 서점 정리 아르바이트 · +6,000원':'집에서 쉬며 다음 약속을 기다렸다',day:day(s),type:'rest'});s.turn++;return true;}
  function finish(s,id){if(s.scene||s.ending)return false;const c=byId(id);if(id==='solo'){if(!over(s))return false;s.ending={id,kind:'normal',early:false};return true;}if(!c)return false;
  if(canConfess(s,id)){s.ending={id,kind:'good',early:s.progress[id]<c.events.length};return true;}if(s.progress[id]>=c.events.length||(over(s)&&s.progress[id]>=3)){s.ending={id,kind:'normal',early:false};return true;}return false;}
+ function currentConversation(s){
+ const sc=s?.scene;if(!sc)return [];
+ if(Number.isInteger(sc.logStart))return clone(s.log.slice(sc.logStart));
+ const recorded=s.log.filter(l=>l.characterId===sc.id&&l.sceneTurn===s.turn&&l.sceneTitle===sc.title);
+ if(recorded.length)return clone(recorded);
+ return sc.lines.slice(0,Math.min(sc.step+1,sc.lines.length)).map(([speaker,text])=>({speaker:speaker==='나'?s.name:speaker,text}));
+ }
  function conversations(s,id='all'){
  const groups=new Map();for(const l of s.log){
  const visits=s.journal.filter(j=>j.day===l.day&&byId(j.id));if(s.scene&&day(s)===l.day)visits.push({id:s.scene.id,title:s.scene.title});
@@ -93,12 +100,12 @@ window.Game=(()=>{
  if(s.log.some(l=>l.observation!==undefined&&(!l.observation||typeof l.observation!=='object'||!byId(l.characterId)||!txt(l.observation.reply)||!txt(l.observation.note)||!num(l.observation.delta,16,-3))))return false;
  if(s.log.some(l=>(l.characterId!==undefined&&!byId(l.characterId))||(l.sceneTitle!==undefined&&!txt(l.sceneTitle))||(l.sceneTurn!==undefined&&!num(l.sceneTurn,TOTAL))))return false;
  if(!Array.isArray(s.journal)||s.journal.length>100||!s.journal.every(j=>j&&(j.id==='self'||byId(j.id))&&txt(j.title)&&num(j.day,28,1)))return false;
- const sc=s.scene;if(sc){if(over(s)||!byId(sc.id)||!['event','date','gift'].includes(sc.type)||!txt(sc.title)||!num(sc.index,8)||typeof sc.choice!=='boolean'||!num(sc.mood,8)||!WORLD.locations.includes(sc.place))return false;
+ const sc=s.scene;if(sc){if(sc.logStart!==undefined&&!num(sc.logStart,s.log.length))return false;if(over(s)||!byId(sc.id)||!['event','date','gift'].includes(sc.type)||!txt(sc.title)||!num(sc.index,8)||typeof sc.choice!=='boolean'||!num(sc.mood,8)||!WORLD.locations.includes(sc.place))return false;
  if(!Array.isArray(sc.lines)||sc.lines.length<1||sc.lines.length>12||!sc.lines.every(l=>Array.isArray(l)&&l.length===2&&l.every(txt))||!num(sc.step,sc.lines.length)||(!sc.choice&&sc.step===sc.lines.length))return false;
  if(sc.choice&&(!Array.isArray(sc.options)||sc.options.length<2||sc.options.length>3||!sc.options.every(o=>o&&txt(o.text)&&txt(o.reply)&&[0,1,2].includes(o.score))))return false;
  if(sc.type==='event'&&sc.index>=byId(sc.id).events.length)return false;}
  if(s.ending?.petName!==undefined&&(s.ending.id!=='siho'||s.ending.kind!=='good'||!['여보','오빠'].includes(s.ending.petName)))return false;
  if(s.ending?.page!==undefined&&!num(s.ending.page,2))return false;
  if(s.ending&&(sc||!['good','normal'].includes(s.ending.kind)||(s.ending.id!=='solo'&&!byId(s.ending.id))||(s.ending.kind==='good'&&s.affinity[s.ending.id]<ROMANCE_THRESHOLD)))return false;return true;}
- return{TOTAL,MAX,ROMANCE_THRESHOLD,FANDOM_BONUS,nameBonuses,byId,fresh,day,slot,over,availability,canConfess,visit,outing,gift,giftMemory,observations,next,choose,pass,finish,conversations,choosePetName,endingPages,endingInfo,migrate,valid};
+ return{TOTAL,MAX,ROMANCE_THRESHOLD,FANDOM_BONUS,nameBonuses,byId,fresh,day,slot,over,availability,canConfess,visit,outing,gift,giftMemory,observations,next,choose,pass,finish,conversations,currentConversation,choosePetName,endingPages,endingInfo,migrate,valid};
 })();

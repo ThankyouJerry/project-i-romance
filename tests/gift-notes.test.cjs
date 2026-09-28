@@ -2,7 +2,7 @@ const {readFileSync}=require('node:fs');
 const vm=require('node:vm');
 const assert=require('node:assert/strict');
 const ctx=vm.createContext({window:{}});
-for(const file of ['story','chapters','chapters-more','world','endings','wardrobe','reactions','route-revisions','gift-memories','engine']){
+for(const file of ['story','chapters','chapters-more','world','endings','wardrobe','reactions','route-revisions','gift-memories','story-continuity','engine']){
  vm.runInContext(readFileSync(`dist/${file}.js`,'utf8'),ctx,{filename:`${file}.js`});
  for(const key of Object.keys(ctx.window))ctx[key]=ctx.window[key];
 }
