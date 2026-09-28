@@ -1,0 +1,1 @@
+window.PORTRAITS = {"honey": "assets/honey.jpeg", "dragon": "assets/dragon.jpeg", "ohwayo": "assets/ohwayo.jpeg", "siho": "assets/siho.png", "popo": "assets/popo.jpeg", "siyo-alt": "assets/siyo-alt.jpeg", "mone": "assets/mone.jpeg", "siho-alt": "assets/siho-alt.png", "aya": "assets/aya.jpeg", "siyo": "assets/siyo.jpeg", "yui": "assets/yui.jpeg", "rose": "assets/rose.jpeg"};

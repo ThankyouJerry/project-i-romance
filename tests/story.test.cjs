@@ -1,0 +1,26 @@
+const {readFileSync}=require('node:fs'),vm=require('node:vm'),assert=require('node:assert/strict');
+const ctx=vm.createContext({window:{}});
+for(const file of ['story','chapters','chapters-more','world','endings','wardrobe','reactions','engine']){vm.runInContext(readFileSync(`dist/${file}.js`,'utf8'),ctx);for(const k of ['CAST','EXTRA_CHAPTERS','WORLD','GIFTS','ROMANCE_ENDINGS','LOOK_LABELS','CHARACTER_REACTIONS','Game'])if(ctx.window[k])ctx[k]=ctx.window[k];}
+const {CAST,Game:G}=ctx,clone=x=>JSON.parse(JSON.stringify(x));
+function available(s,c){let guard=0;while(G.availability(s,c)&&!G.over(s)&&guard++<5)G.pass(s);assert.equal(G.availability(s,c),null);}
+function complete(s,best=true){let guard=0;while(s.scene&&guard++<30){if(s.scene.choice&&s.scene.step===s.scene.lines.length){const scores=s.scene.options.map(o=>o.score);G.choose(s,scores.indexOf(best?Math.max(...scores):Math.min(...scores)));}else G.next(s);assert.ok(G.valid(s),'save remains valid');}assert.equal(s.scene,null);}
+assert.equal(CAST.length,11);
+for(const c of CAST){assert.equal(c.events.length,8);assert.equal(c.outings.length,2);assert.equal(new Set(c.events.map(e=>e[0])).size,8);
+ for(const best of [true,false]){const s=G.fresh('검증');for(let n=0;n<8;n++){available(s,c);assert.ok(G.visit(s,c.id));assert.equal(s.scene.title,c.events[n][0]);assert.equal(s.scene.place,c.places[n]);complete(s,best);assert.equal(s.progress[c.id],n+1);assert.ok(!G.visit(s,c.id),'same day unavailable');}assert.ok(G.finish(s,c.id));assert.equal(s.ending.kind,best?'good':'normal');assert.ok(G.valid(s));if(best){assert.equal(s.affinity[c.id],100);assert.ok(s.turn<56);}}
+ const d=G.fresh('데이트');d.progress[c.id]=1;available(d,c);const money=d.money;assert.ok(G.outing(d,c.id));assert.equal(d.money,money-2000);complete(d);assert.equal(d.affinity[c.id],10);available(d,c);G.outing(d,c.id);complete(d,false);assert.equal(d.affinity[c.id],8);available(d,c);assert.equal(G.outing(d,c.id),false);assert.ok(G.gift(d,c.id,c.gift));complete(d);assert.equal(d.affinity[c.id],16);available(d,c);assert.equal(G.gift(d,c.id,c.gift),false);
+}
+const early=G.fresh('고백');early.affinity.honey=100;early.progress.honey=2;assert.ok(G.finish(early,'honey'));assert.ok(early.ending.early);assert.ok(G.valid(early));assert.match(G.endingInfo(early)[1],/사귀고 싶어/);
+const solo=G.fresh('혼자');while(!G.over(solo))G.pass(solo);assert.ok(G.finish(solo,'solo'));assert.ok(G.valid(solo));
+const old={version:1,name:'기존',turn:28,progress:Object.fromEntries(CAST.map(c=>[c.id,3])),affinity:Object.fromEntries(CAST.map(c=>[c.id,6])),scene:null,log:[],journal:[],ending:{id:'honey',kind:'good'}};
+const migrated=G.migrate(old);assert.ok(migrated);assert.equal(migrated.progress.honey,3);assert.equal(migrated.affinity.honey,36);assert.equal(migrated.ending,null);assert.equal(old.version,1);available(migrated,CAST[0]);G.visit(migrated,'honey');assert.equal(migrated.scene.index,3);assert.equal(migrated.scene.title,'박수가 끝난 자리');
+const mid=G.fresh('중간');G.pass(mid);G.visit(mid,'honey');while(mid.scene.step<mid.scene.lines.length)G.next(mid);G.choose(mid,mid.scene.options.findIndex(o=>o.score===2));const resumed=G.migrate(clone(mid));assert.ok(resumed);const affinity=resumed.affinity.honey;complete(resumed);assert.equal(resumed.affinity.honey,affinity);assert.equal(resumed.progress.honey,1);
+const broken=clone(resumed);broken.journal.push({id:'missing',title:'bad',day:1});assert.equal(G.migrate(broken),null);const badScene=clone(mid);badScene.scene.choice=true;badScene.scene.options=null;assert.equal(G.migrate(badScene),null);
+const broke=G.fresh('예산');broke.money=0;broke.progress.aya=1;assert.equal(G.outing(broke,'aya'),false);assert.equal(G.gift(broke,'aya','keyring'),false);G.pass(broke,true);assert.equal(broke.money,6000);
+for(const score of [0,2]){const e=G.fresh('기억');e.progress.honey=4;e.choices.honey[3]=score;G.pass(e);G.visit(e,'honey');assert.ok(e.scene.lines.some(l=>l[1].includes(score===2?'케이크를 나눠':'너무 빨리')));}
+console.log('PASS: 88 chapters; 22 outings/both branches; 23 endings plus early max-bond ending; schedule, budget, gifts, anti-repeat, save migration, reaction resume, prior-choice callbacks, malformed saves.');
+
+for(const c of CAST){const pages=ctx.ROMANCE_ENDINGS[c.id];assert.equal(pages.length,3);assert.ok(pages.every(p=>p[2].length>220));assert.match(pages[0][2],/사귀|사귈|연인/);const s=G.fresh("검증");s.affinity[c.id]=100;G.finish(s,c.id);s.ending.page=2;assert.ok(G.migrate(s));s.ending.page=3;assert.equal(G.migrate(s),null);}
+console.log("PASS: 11 unique three-scene romance endings, explicit mutual romance, first date, persisted ending pagination.");
+for(const gift of ctx.GIFTS){const s=G.fresh('조사 검수');s.progress.aya=1;assert(G.gift(s,'aya',gift.id));const expected={'허브 티백':'허브 티백을','꽃 책갈피':'꽃 책갈피를','간식 꾸러미':'간식 꾸러미를','작은 머그컵':'작은 머그컵을','무지 노트':'무지 노트를','작은 열쇠고리':'작은 열쇠고리를'};assert(s.scene.lines[0][1].startsWith(expected[gift.name]+' 건넸다.'));assert.equal(s.scene.lines[1][1],ctx.CHARACTER_REACTIONS.aya[gift.id==='keyring'?'giftGood':'giftOther']);}
+assert(!CAST.some(c=>c.events.some(e=>JSON.stringify(e).includes('네한테'))));
+console.log('PASS: gift particles and character-specific responses; reported dialogue typo regression.');
