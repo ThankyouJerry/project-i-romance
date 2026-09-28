@@ -1,11 +1,11 @@
 'use strict';
 window.Game=(()=>{
- const TOTAL=WORLD.days*2,MAX=WORLD.maxBond, byId=id=>CAST.find(c=>c.id===id),clone=x=>JSON.parse(JSON.stringify(x));
+ const TOTAL=WORLD.days*2,MAX=WORLD.maxBond,ROMANCE_THRESHOLD=90, byId=id=>CAST.find(c=>c.id===id),clone=x=>JSON.parse(JSON.stringify(x));
  const all=val=>Object.fromEntries(CAST.map(c=>[c.id,typeof val==='function'?val():val]));
  function fresh(name){return{version:2,name:String(name||'이웃').trim().slice(0,16)||'이웃',turn:0,money:WORLD.startingMoney,progress:all(0),affinity:all(0),choices:all(()=>[]),dates:all(0),gifts:all(false),lastVisit:all(-1),scene:null,journal:[],log:[],ending:null};}
  const day=s=>Math.min(WORLD.days,Math.floor(s.turn/2)+1),slot=s=>s.turn%2,over=s=>s.turn>=TOTAL;
  function availability(s,c){if(over(s))return'마지막 저녁';if(s.lastVisit[c.id]===day(s))return'오늘은 만났어요';if(!c.hours.includes(slot(s)))return c.hours[0]===0?'오후에 만나요':'저녁에 만나요';return null;}
- function canConfess(s,id){return!!byId(id)&&!s.scene&&s.affinity[id]>=MAX;}
+ function canConfess(s,id){return!!byId(id)&&!s.scene&&s.affinity[id]>=ROMANCE_THRESHOLD;}
  const bond=(s,id,n)=>{s.affinity[id]=Math.max(0,Math.min(MAX,s.affinity[id]+n));};
  function log(s){const sc=s.scene,l=sc?.lines[sc.step];if(l)s.log.push({speaker:l[0]==='나'?s.name:l[0],text:l[1],day:day(s),characterId:sc.id,sceneTitle:sc.title,sceneTurn:s.turn});}
  function scene(s,c,{title,lines,options=null,type='event',place,mood,index,delta=0}){s.scene={id:c.id,title,lines,options,type,step:0,choice:!!options,place:place||c.home,mood:mood??0,index:index??s.progress[c.id],delta};log(s);return s;}
@@ -60,6 +60,6 @@ window.Game=(()=>{
  if(sc.type==='event'&&sc.index>=byId(sc.id).events.length)return false;}
  if(s.ending?.petName!==undefined&&(s.ending.id!=='siho'||s.ending.kind!=='good'||!['여보','오빠'].includes(s.ending.petName)))return false;
  if(s.ending?.page!==undefined&&!num(s.ending.page,2))return false;
- if(s.ending&&(sc||!['good','normal'].includes(s.ending.kind)||(s.ending.id!=='solo'&&!byId(s.ending.id))||(s.ending.kind==='good'&&s.affinity[s.ending.id]<MAX)))return false;return true;}
- return{TOTAL,MAX,byId,fresh,day,slot,over,availability,canConfess,visit,outing,gift,next,choose,pass,finish,conversations,choosePetName,endingPages,endingInfo,migrate,valid};
+ if(s.ending&&(sc||!['good','normal'].includes(s.ending.kind)||(s.ending.id!=='solo'&&!byId(s.ending.id))||(s.ending.kind==='good'&&s.affinity[s.ending.id]<ROMANCE_THRESHOLD)))return false;return true;}
+ return{TOTAL,MAX,ROMANCE_THRESHOLD,byId,fresh,day,slot,over,availability,canConfess,visit,outing,gift,next,choose,pass,finish,conversations,choosePetName,endingPages,endingInfo,migrate,valid};
 })();

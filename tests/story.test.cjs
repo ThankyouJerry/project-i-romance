@@ -45,3 +45,6 @@ for(const id of ['aya','siho']){const groups=G.conversations(notebook,id);assert
 assert.equal(G.conversations(notebook).reduce((n,g)=>n+g.lines.length,0),notebook.log.length);assert(G.migrate(clone(notebook)));
 const legacy=clone(notebook);for(const l of legacy.log){delete l.characterId;delete l.sceneTitle;delete l.sceneTurn;}assert(G.migrate(legacy));assert.equal(G.conversations(legacy).reduce((n,g)=>n+g.lines.length,0),legacy.log.length);assert(G.conversations(legacy,'siho').every(g=>g.characterId==='siho'));
 console.log('PASS: character journal keeps narration, player replies and scene titles; legacy logs remain accessible without duplication.');
+
+for(const c of CAST)for(const amount of [89,90,99,100]){const s=G.fresh('고백 기준');s.progress[c.id]=2;s.affinity[c.id]=amount;assert.equal(G.canConfess(s,c.id),amount>=90);assert.equal(G.finish(s,c.id),amount>=90);if(amount>=90){assert.equal(s.ending.kind,'good');assert(G.migrate(clone(s)));}else{const bad=clone(s);bad.ending={id:c.id,kind:'good'};assert.equal(G.migrate(bad),null);}}
+console.log('PASS: all 11 romance thresholds at 89/90/99/100, early endings and saved romance validation.');
