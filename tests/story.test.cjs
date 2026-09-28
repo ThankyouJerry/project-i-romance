@@ -1,6 +1,6 @@
 const {readFileSync}=require('node:fs'),vm=require('node:vm'),assert=require('node:assert/strict');
 const ctx=vm.createContext({window:{}});
-for(const file of ['story','chapters','chapters-more','world','endings','wardrobe','reactions','engine']){vm.runInContext(readFileSync(`dist/${file}.js`,'utf8'),ctx);for(const k of ['CAST','EXTRA_CHAPTERS','WORLD','GIFTS','ROMANCE_ENDINGS','LOOK_LABELS','CHARACTER_REACTIONS','Game'])if(ctx.window[k])ctx[k]=ctx.window[k];}
+for(const file of ['story','chapters','chapters-more','world','endings','wardrobe','reactions','route-revisions','engine']){vm.runInContext(readFileSync(`dist/${file}.js`,'utf8'),ctx);for(const k of ['CAST','EXTRA_CHAPTERS','WORLD','GIFTS','ROMANCE_ENDINGS','LOOK_LABELS','CHARACTER_REACTIONS','Game'])if(ctx.window[k])ctx[k]=ctx.window[k];}
 const {CAST,Game:G}=ctx,clone=x=>JSON.parse(JSON.stringify(x));
 function available(s,c){let guard=0;while(G.availability(s,c)&&!G.over(s)&&guard++<5)G.pass(s);assert.equal(G.availability(s,c),null);}
 function complete(s,best=true){let guard=0;while(s.scene&&guard++<30){if(s.scene.choice&&s.scene.step===s.scene.lines.length){const scores=s.scene.options.map(o=>o.score);G.choose(s,scores.indexOf(best?Math.max(...scores):Math.min(...scores)));}else G.next(s);assert.ok(G.valid(s),'save remains valid');}assert.equal(s.scene,null);}
