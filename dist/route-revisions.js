@@ -192,6 +192,6 @@ s.moods[7]=5;ROMANCE_ENDINGS.siho[1][3]=5;
 // Every character wears their designated date outfit on both planned outings.
 // Popo deliberately reserves the feminine dress for episode 8 and the romance ending.
 for(const c of CAST){if(!['popo','ori'].includes(c.id))c.outingMoods=[5,5];c.normalMood=c.id==='ori'?6:c.id==='popo'?6:2;}
-CHARACTER_REACTIONS.popo={giftGood:'이건 내 쉬는 시간에 쓸게. 기억해줬네. 고맙다.',giftOther:'내 생각해서 골랐나? 고맙다. 다음엔 니 취향도 알려줘.',positive:'그녀의 웃음에서 연습한 인사의 억양이 빠졌다. 나를 향한 말이 조금 더 편해졌다.',negative:'그녀는 잠시 말을 골랐다. 나는 대답을 서두르지 않고 기다렸다.'};
-CHARACTER_REACTIONS.ori={giftGood:'좋아하는 재즈 곡을 적어둘게요. 같이 듣고 싶은 곡에는 표시도 하고요. 기억해줘서 고마워요.',giftOther:'고마워요. 내가 뭘 좋아하는지도 조금씩 더 말해볼게요.',positive:'그녀가 안경을 고쳐 쓰고 웃었다. 다음 약속을 먼저 묻는 목소리가 조금 가벼워졌다.',negative:'그녀는 바로 웃어넘기지 않았다. 무슨 마음이었는지 말할 시간을 기다렸다.'};
+CHARACTER_REACTIONS.popo={giftGood:'이건 내 쉬는 시간에 쓸게. 기억해줬네. 고맙다.',giftOther:'내 생각나서 샀나? 좋다! 고맙다. 니한테 받으니까 더 좋네.',positive:'그녀의 웃음에서 연습한 인사의 억양이 빠졌다. 나를 향한 말이 조금 더 편해졌다.',negative:'그녀는 잠시 말을 골랐다. 나는 대답을 서두르지 않고 기다렸다.'};
+CHARACTER_REACTIONS.ori={giftGood:'좋아하는 재즈 곡을 적어둘게요. 같이 듣고 싶은 곡에는 표시도 하고요. 기억해줘서 고마워요.',giftOther:'마음에 들어요. 저를 생각해서 골라줬다는 게 참 좋네요. 고마워요. 오늘은 재즈도 평소보다 즐겁게 들리겠어요.',positive:'그녀가 안경을 고쳐 쓰고 웃었다. 다음 약속을 먼저 묻는 목소리가 조금 가벼워졌다.',negative:'그녀는 바로 웃어넘기지 않았다. 무슨 마음이었는지 말할 시간을 기다렸다.'};
 })();

@@ -24,3 +24,15 @@ console.log("PASS: 11 unique three-scene romance endings, explicit mutual romanc
 for(const gift of ctx.GIFTS){const s=G.fresh('조사 검수');s.progress.aya=1;assert(G.gift(s,'aya',gift.id));const expected={'허브 티백':'허브 티백을','꽃 책갈피':'꽃 책갈피를','간식 꾸러미':'간식 꾸러미를','작은 머그컵':'작은 머그컵을','무지 노트':'무지 노트를','작은 열쇠고리':'작은 열쇠고리를'};assert(s.scene.lines[0][1].startsWith(expected[gift.name]+' 건넸다.'));assert.equal(s.scene.lines[1][1],ctx.CHARACTER_REACTIONS.aya[gift.id==='keyring'?'giftGood':'giftOther']);}
 assert(!CAST.some(c=>c.events.some(e=>JSON.stringify(e).includes('네한테'))));
 console.log('PASS: gift particles and character-specific responses; reported dialogue typo regression.');
+
+// Every gift is welcome, regardless of the character's preferred item.
+for(const c of CAST)for(const gift of ctx.GIFTS){
+ const s=G.fresh('선물 검수');s.progress[c.id]=1;available(s,c);const money=s.money;
+ assert.ok(G.gift(s,c.id,gift.id),`${c.id}/${gift.id}`);
+ assert.equal(s.affinity[c.id],8);assert.equal(s.scene.delta,8);assert.equal(s.scene.mood,8);
+ assert.equal(s.money,money-gift.cost);assert.equal(s.gifts[c.id],true);
+ assert.equal(s.scene.lines[1][1],ctx.CHARACTER_REACTIONS[c.id][c.gift===gift.id?'giftGood':'giftOther']);
+ const resumed=G.migrate(clone(s));assert.ok(resumed);complete(resumed);assert.equal(resumed.affinity[c.id],8);
+ complete(s);assert.equal(s.affinity[c.id],8);available(s,c);assert.equal(G.gift(s,c.id,gift.id),false);
+}
+console.log('PASS: all 66 character/gift combinations welcome gifts with +8 affinity, happy expression, correct cost, save resume and one-gift limit.');
