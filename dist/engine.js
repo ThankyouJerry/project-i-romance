@@ -38,19 +38,51 @@ window.Game=(()=>{
  if(!groups.has(key))groups.set(key,{characterId,day:l.day,title,lines:[]});groups.get(key).lines.push(l);
  }return [...groups.values()];
  }
- function choosePetName(s,name){if(s.ending?.id!=='siho'||s.ending.kind!=='good'||!['여보','오빠'].includes(name))return false;s.ending.petName=name;return true;}
+ function choosePetName(s,name){if(s.ending?.id!=='siho'||s.ending.kind!=='good'||!['여보','오빠'].includes(name))return false;s.ending.petName=name;s.ending.page=1;return true;}
  function endingPages(s){const e=s.ending;if(e?.kind!=='good'||typeof ROMANCE_ENDINGS==='undefined'||!ROMANCE_ENDINGS[e.id])return null;const pages=clone(ROMANCE_ENDINGS[e.id]);if(e.id==='siho'){
  const name=e.petName;
  pages[0][2]+='\n잠시 내 손을 만지작거리던 시호가 조심스럽게 물었다.\n“이제 우리 사귀니까… 둘이 있을 때 부르는 호칭도 정해볼까요? 여보라고 할까요, 아니면 오빠라고 해줄까요?”';
- if(name){pages[0][2]+=name==='여보'?'\n“여보라고 불러줘요.”\n“여보… 아, 제가 말하고도 부끄럽네요.”\n시호는 웃음을 참다가 내 손을 조금 더 꼭 잡았다. “아직 결혼한 건 아니지만, 우리 둘만의 애칭으로요.”':'\n“오빠라고 불러줘요.”\n“오빠.”\n시호는 내 반응을 살피더니 수줍게 웃었다. “한 번 부르니까 또 부르고 싶네요. 오빠, 조금만 더 같이 걸어요.”';
- pages[1][2]+=`\n헤어지기 전, 시호가 내 소매를 살짝 잡았다. “${name}, 다음 데이트는 제가 먼저 신청해도 돼요?”\n“당연하죠. 기다릴게요.” 그 대답에 그녀가 환하게 웃었다.`;
- pages[2][2]+=`\n전화를 끊으려는데 그녀가 한 번 더 나를 불렀다.\n“${name}, 잘 자요. 내일도 제가 먼저 연락할게요.”\n우리 둘이 고른 호칭이 평범한 밤인사를 조금 특별하게 만들었다.`;
+ if(name){
+ const answer=name==='여보'?'“여보라고 불러줘요.”\n“여보… 아, 제가 말하고도 부끄럽네요.”\n시호는 웃음을 참다가 내 손을 조금 더 꼭 잡았다. “아직 결혼한 건 아니지만, 우리 둘만의 애칭으로요.”':'“오빠라고 불러줘요.”\n“오빠.”\n시호는 내 반응을 살피더니 수줍게 웃었다. “한 번 부르니까 또 부르고 싶네요. 오빠, 조금만 더 같이 걸어요.”';
+ pages[0][2]+='\n'+answer;
+ pages[1][2]=name==='여보'?`첫 데이트 날, 조용한 카페에서 시호가 내 옆자리를 가리켰다. “여보, 여기 앉아요.”
+그 말을 하고는 입가를 손으로 가렸다. “지난번엔 너무 떨려서 작게 불렀잖아요. 오늘은 제대로 불러보고 싶었어요.”
+“한 번 더 불러줘도 좋은데요.” 내가 웃자 그녀가 내 컵 옆에 자기 컵을 놓았다.
+“여보. …우리 컵이랑 손, 사진 찍어도 돼요? 제가 나중에 또 보고 싶어서요.”
+우리는 맞잡은 손을 한 장 찍었다. 사진 속 손을 보던 그녀가 조심스럽게 물었다. “데이트 잘하고 있는지 자꾸 생각하게 돼요.”
+“저도 시호 씨랑 하는 첫 데이트라 떨려요. 잘하려고 애쓰기보다 편하게 같이 있으면 좋겠어요.”
+그녀가 고개를 끄덕였다. 잠깐 말이 없어져도 휴대폰 뒤로 숨지 않았다. 내 손을 잡은 채 창밖을 보다가, 눈이 마주치면 웃었다.
+카페를 나서며 시호가 먼저 내 소매를 잡았다. “여보, 다음 데이트는 제가 신청할게요. 오늘 헤어지기 전에 약속부터 해요.”
+나는 걸음을 늦추고 그녀 쪽으로 손을 내밀었다. “좋아요. 언제 볼까요?”`: `첫 데이트 날, 조용한 카페 창가에서 시호가 손을 들었다. “오빠, 여기예요.”
+내가 다가가자 그녀는 옆자리에 두었던 가방을 치웠다. “이렇게 불러서 기다리는 거, 한번 해보고 싶었어요.”
+“그럼 앞으로도 시호 씨가 불러주는 자리로 갈게요.”
+그녀가 수줍게 웃으며 내 컵 옆에 자기 컵을 놓았다. “오빠, 우리 손도 같이 사진 찍어도 돼요? 어디 올리려는 건 아니고, 제가 나중에 또 보고 싶어서요.”
+사진을 찍고도 손은 놓지 않았다. “데이트 잘하고 있는지 자꾸 생각하게 돼요.”
+“저도 시호 씨랑 하는 첫 데이트라 떨려요. 잘하려고 애쓰기보다 편하게 같이 있으면 좋겠어요.”
+그녀가 고개를 끄덕였다. 잠깐 말이 없어졌지만 이번에는 휴대폰 뒤로 숨지 않았다. 내 어깨에 살짝 기대며 작은 목소리로 말했다. “그럼 조금만 이러고 있어도 돼요?”
+카페를 나올 때는 그녀가 먼저 다음 약속을 물었다. “오빠, 다음에는 제가 가고 싶은 곳으로 같이 가요.”
+“좋아요. 어디든 시호 씨랑 같이 가고 싶어요.” 내 대답에 그녀가 손을 조금 더 꼭 잡았다.`;
+ pages[2][2]=`며칠 뒤, 시호가 먼저 자기 집으로 나를 초대했다. 어젯밤 전화로 “${name}, 이번에는 제가 차를 준비할게요”라던 목소리가 떠올랐다.
+문을 열어준 그녀는 편안한 옷차림이었다. 긴장한 듯 찻잔을 한 번 더 가지런히 놓다가 나를 보고 웃었다. “${name}, 와줘서 고마워요.”
+“초대해줘서 제가 고맙죠.” 내가 옆에 앉자 그녀가 따뜻한 찻잔을 밀어주었다.
+함께 게임을 고르던 시호가 화면을 보다가 조용히 말했다. “전에는 같이 접속하는 것만으로도 좋았는데, 이제는 옆에 있었으면 좋겠어요.”
+나는 컨트롤러를 잠깐 내려놓고 그녀의 손을 잡았다. “오늘은 여기 있잖아요. 천천히 같이 해요.”
+그녀가 내 어깨에 살짝 기댔다. “네, ${name}. 오늘은 이러고 조금만 있어요.”
+처음보다 말수가 크게 늘지는 않았다. 그래도 이제는 만나고 싶은 마음을 숨기지 않았고, 나는 그 작은 목소리를 기다렸다.
+돌아갈 시간이 되어 현관에서 신발을 신는데 그녀가 내 손을 다시 잡았다. “${name}, 다음에는 제가 만나러 갈게요. 오늘처럼 아무것도 안 해도 좋으니까요.”
+“좋아요. 다음 주말에도 같이 있어요.”
+문이 닫히기 전 그녀가 환하게 웃었다. 온라인 표시가 꺼진 뒤에도 우리는 서로의 하루에 남는 사이가 되었다.`;
  }}return pages;}
  function endingInfo(s){const e=s.ending,c=byId(e?.id);if(e?.id==='solo')return['익숙해진 골목','스물여덟 날 동안 낯선 골목은 돌아갈 곳이 되었다.\n아직 끝내지 못한 이야기도, 다시 만나고 싶은 이름도 남아 있다.\n누군가의 연인이 되지 않았어도 내 생활은 조금 넓어졌다.\n내일도 문을 열고 나가보기로 했다.'];if(e?.kind==='good'&&typeof ROMANCE_ENDINGS!=='undefined'&&ROMANCE_ENDINGS[e.id])return[c.good[0],endingPages(s).map(p=>p[1]+'\n'+p[2]).join('\n\n')];return c?.[e?.kind]||['',''];}
  function migrate(input){if(!input||typeof input!=='object')return null;let s=clone(input);if(s.version===1){const n=fresh(s.name);n.turn=Math.min(30,Math.max(0,s.turn||0));n.money=WORLD.startingMoney;n.log=Array.isArray(s.log)?s.log:[];n.journal=Array.isArray(s.journal)?s.journal:[];
  for(const c of CAST){n.progress[c.id]=Math.min(3,Math.max(0,s.progress?.[c.id]||0));n.affinity[c.id]=Math.min(36,Math.max(0,(s.affinity?.[c.id]||0)*6));}
  if(s.scene&&byId(s.scene.id)){const c=byId(s.scene.id),sc=s.scene;if(sc.type==='event'){n.scene={...sc,index:n.progress[c.id],place:c.places[n.progress[c.id]],mood:c.moods[n.progress[c.id]],options:sc.options?.map(o=>({text:o[0],score:o[1],reply:o[2]}))||null,delta:0};} }
  n.migrated=true;s=n;}
+ if(!valid(s))return null;
+ const repair=(text,id)=>{for(const f of window.WARDROBE_TEXT_FIXES||[])if((!id||f.id===id)&&text===f.from)return f.to;return text;};
+ if(s.scene){s.scene.title=repair(s.scene.title,s.scene.id);s.scene.lines=s.scene.lines.map(([speaker,text])=>[speaker,repair(text,s.scene.id)]);}
+ for(const l of s.log){l.text=repair(l.text,l.characterId);if(l.sceneTitle!==undefined)l.sceneTitle=repair(l.sceneTitle,l.characterId);}
+ for(const j of s.journal)j.title=repair(j.title,j.id);
  return valid(s)?s:null;}
  function valid(s){const txt=v=>typeof v==='string'&&v.length<=6000,num=(v,max,min=0)=>Number.isInteger(v)&&v>=min&&v<=max;
  if(!s||s.version!==2||!txt(s.name)||s.name.length>16||!num(s.turn,TOTAL)||!num(s.money,1000000))return false;

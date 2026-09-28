@@ -66,3 +66,15 @@ console.log('PASS: legacy ending-only collection restores earned outfits for all
 
 let wardrobeTotal=0;for(const c of CAST){const groups=Gallery.outfits(c);assert.equal(groups.length,5,c.id);wardrobeTotal+=groups.length;const reachable=[...c.moods,...c.outingMoods,...ctx.ROMANCE_ENDINGS[c.id].map(p=>p[3]??2),c.normalMood??2,8];for(const group of groups)assert(group.looks.some(n=>reachable.includes(n)),c.id+' '+group.name+' must be obtainable');assert.equal(new Set(groups.flatMap(g=>g.looks)).size,9);}
 assert.equal(wardrobeTotal,55);console.log('PASS: exactly 5 obtainable outfits per member, 55 total, all expression frames grouped without extra outfit counts.');
+
+// Choosing a pet name advances immediately; later scenes speak to that choice in context.
+for(const name of ['여보','오빠']){
+ const s=G.fresh('호칭 진행');s.affinity.siho=90;assert(G.finish(s,'siho'));
+ assert.equal(s.ending.page||0,0);assert(G.choosePetName(s,name));assert.equal(s.ending.page,1);
+ const pages=G.endingPages(s);assert(pages[1][2].includes(name+', 여기'));
+ assert(pages[2][2].includes(name+'. 오늘은 이러고 조금만 있어요.'));
+ assert(pages[2][2].includes('자기 집으로 나를 초대했다'));
+ assert.equal(G.migrate(clone(s)).ending.page,1);
+ s.ending.page=0;assert(G.choosePetName(s,name==='여보'?'오빠':'여보'));assert.equal(s.ending.page,1);
+}
+console.log('PASS: both Siho pet-name choices advance to first date, retain save position and alter date and later meeting dialogue.');
