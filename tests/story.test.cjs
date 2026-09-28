@@ -36,3 +36,7 @@ for(const c of CAST)for(const gift of ctx.GIFTS){
  complete(s);assert.equal(s.affinity[c.id],8);available(s,c);assert.equal(G.gift(s,c.id,gift.id),false);
 }
 console.log('PASS: all 66 character/gift combinations welcome gifts with +8 affinity, happy expression, correct cost, save resume and one-gift limit.');
+
+for(const name of ['여보','오빠']){const s=G.fresh('호칭');s.affinity.siho=100;assert(G.finish(s,'siho'));assert(G.choosePetName(s,name));for(const page of G.endingPages(s))assert(page[2].includes(name));const saved=G.migrate(clone(s));assert.equal(saved.ending.petName,name);assert(G.endingInfo(saved)[1].includes(name));assert(!G.choosePetName(s,'invalid'));const bad=clone(s);bad.ending.petName='invalid';assert.equal(G.migrate(bad),null);}
+const oldSiho=G.fresh('기존 저장');oldSiho.affinity.siho=100;G.finish(oldSiho,'siho');assert(G.migrate(oldSiho));assert(G.endingPages(oldSiho)[0][2].includes('호칭'));const other=G.fresh('다른 인물');other.affinity.aya=100;G.finish(other,'aya');assert(!G.choosePetName(other,'여보'));assert(!G.choosePetName(G.fresh('진행 중'),'오빠'));
+console.log('PASS: Siho pet-name choices, three ending scenes, save compatibility, invalid-name and other-route guards.');
