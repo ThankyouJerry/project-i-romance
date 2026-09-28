@@ -10,5 +10,6 @@ window.Gallery=(()=>{
  if(s.ending&&s.ending.id!=='solo'){const c=CAST.find(c=>c.id===s.ending.id);if(c){if(s.ending.kind==='good')ROMANCE_ENDINGS[c.id].slice(0,(s.ending.page||0)+1).forEach(p=>add(c.id,p[3]??2));else add(c.id,c.normalMood??2);}}
  return clean(out);}
  function outfits(c){const used=new Set([...c.moods,...c.outingMoods,...ROMANCE_ENDINGS[c.id].map(p=>p[3]??2),c.normalMood??2,8]);if(used.has(0)||used.has(1)){used.add(0);used.add(1);}return sets.map(g=>({...g,looks:g.looks.filter(n=>used.has(n)||(n>=6))})).filter(g=>g.looks.length);}
- return{clean,merge,seen,outfits};
+ function fromEndings(entries){const out=[];if(!Array.isArray(entries))return out;for(const c of CAST){if(entries.includes(c.id+'-good')){out.push(c.id+':'+c.moods[0]);for(const p of ROMANCE_ENDINGS[c.id])out.push(c.id+':'+(p[3]??2));}if(entries.includes(c.id+'-normal'))out.push(c.id+':'+c.moods[0],c.id+':'+(c.normalMood??2));}return clean(out);}
+ return{clean,merge,seen,outfits,fromEndings};
 })();
