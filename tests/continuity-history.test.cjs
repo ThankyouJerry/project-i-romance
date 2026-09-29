@@ -57,9 +57,9 @@ for(const c of CAST){
  const episode8=c.events[7];
  for(const o of [episode8[4],episode8[5]])assert(!/(오늘부터 (?:사귀|연인)|우리 (?:이제 )?사귀|연인이 (?:되|됐)|친구로 지내)/.test(o[0]+' '+o[2]),`${c.id}: episode 8 leaves relationship confirmation for optional ending`);
  for(const affinity of [89,90,100]){
-  const s=G.fresh('결말 검증');s.affinity[c.id]=affinity;s.progress[c.id]=1;
-  assert.equal(G.canConfess(s,c.id),affinity>=90);assert.equal(G.finish(s,c.id),affinity>=90);
-  if(affinity>=90){assert.equal(s.ending.kind,'good');assert.equal(s.ending.early,true);}
+  const s=G.fresh('결말 검증');s.affinity[c.id]=affinity;s.progress[c.id]=8;
+  assert.equal(G.canConfess(s,c.id),affinity>=90);assert.equal(G.finish(s,c.id),true);
+  if(affinity>=90){assert.equal(s.ending.kind,'good');assert.equal(s.ending.early,false);}
  }
 }
 for(const [id,variants] of Object.entries(ctx.STORY_VARIANTS||{}))for(const [p,v] of Object.entries(variants))for(const score of [2,0]){
@@ -70,7 +70,7 @@ for(const [id,variants] of Object.entries(ctx.STORY_VARIANTS||{}))for(const [p,v
  assert(G.valid(s));
 }
 assert(callbackCount>=22);
-console.log(`PASS: ${callbackCount} choice callbacks cover all 11 eight-episode routes; optional romance still unlocks at 90.`);
+console.log(`PASS: ${callbackCount} choice callbacks cover all 11 eight-episode routes; optional romance unlocks after episode 8 at 90.`);
 const ori=CAST.find(c=>c.id==='ori');assert.deepEqual(clone(ori.outingMinProgress),[2,6]);
 for(const [outing,threshold] of [[0,2],[1,6]])for(const progress of [threshold-1,threshold]){
  const s=G.fresh('의상 순서');s.dates.ori=outing;s.progress.ori=progress;s.money=10000;available(s,ori);const before=JSON.stringify(s);

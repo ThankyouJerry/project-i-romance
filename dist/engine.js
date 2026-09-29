@@ -9,7 +9,7 @@ window.Game=(()=>{
  function fresh(name){const value=playerName(name),bonus=nameBonuses(value),affinity=all(0);for(const id of bonus)affinity[id]=FANDOM_BONUS;return{version:2,name:value,turn:0,money:WORLD.startingMoney,progress:all(0),affinity,choices:all(()=>[]),dates:all(0),gifts:all(false),lastVisit:all(-1),scene:null,journal:[],log:[],ending:null};}
  const day=s=>Math.min(WORLD.days,Math.floor(s.turn/2)+1),slot=s=>s.turn%2,over=s=>s.turn>=TOTAL;
  function availability(s,c){if(over(s))return'마지막 저녁';if(s.lastVisit[c.id]===day(s))return'오늘은 만났어요';if(!c.hours.includes(slot(s)))return c.hours[0]===0?'오후에 만나요':'저녁에 만나요';return null;}
- function canConfess(s,id){return!!byId(id)&&!s.scene&&s.affinity[id]>=ROMANCE_THRESHOLD;}
+ function canConfess(s,id){return!!byId(id)&&!s.scene&&s.progress[id]>=byId(id).events.length&&s.affinity[id]>=ROMANCE_THRESHOLD;}
  const bond=(s,id,n)=>{s.affinity[id]=Math.max(0,Math.min(MAX,s.affinity[id]+n));};
  function log(s){const sc=s.scene,l=sc?.lines[sc.step];if(l)s.log.push({speaker:l[0]==='나'?s.name:l[0],text:l[1],day:day(s),characterId:sc.id,sceneTitle:sc.title,sceneTurn:s.turn});}
  function scene(s,c,{title,lines,options=null,type='event',place,mood,index,delta=0}){s.scene={id:c.id,title,lines,options,type,step:0,choice:!!options,place:place||c.home,mood:mood??0,index:index??s.progress[c.id],delta,logStart:s.log.length};log(s);return s;}
@@ -27,7 +27,7 @@ window.Game=(()=>{
  function next(s){const sc=s.scene;if(!sc)return false;if(sc.step<sc.lines.length-1){sc.step++;log(s);}else if(sc.choice){sc.step=sc.lines.length;}else{const c=byId(sc.id);if(sc.type==='event')s.progress[sc.id]=Math.max(s.progress[sc.id],sc.index+1);if(sc.type==='date')s.dates[sc.id]=Math.max(s.dates[sc.id],sc.index+1);s.journal.push({id:sc.id,title:sc.title,day:day(s),type:sc.type});s.lastVisit[sc.id]=day(s);s.turn=Math.min(TOTAL,s.turn+1);s.scene=null;}return true;}
  function pass(s,work=false){if(s.scene||over(s))return false;if(work)s.money+=6000;s.journal.push({id:'self',title:work?'동네 서점 정리 아르바이트 · +6,000원':'집에서 쉬며 다음 약속을 기다렸다',day:day(s),type:'rest'});s.turn++;return true;}
  function finish(s,id){if(s.scene||s.ending)return false;const c=byId(id);if(id==='solo'){if(!over(s))return false;s.ending={id,kind:'normal',early:false};return true;}if(!c)return false;
- if(canConfess(s,id)){s.ending={id,kind:'good',early:s.progress[id]<c.events.length};return true;}if(s.progress[id]>=c.events.length||(over(s)&&s.progress[id]>=3)){s.ending={id,kind:'normal',early:false};return true;}return false;}
+ if(canConfess(s,id)){s.ending={id,kind:'good',early:false};return true;}if(s.progress[id]>=c.events.length||(over(s)&&s.progress[id]>=3)){s.ending={id,kind:'normal',early:false};return true;}return false;}
  function currentConversation(s){
  const sc=s?.scene;if(!sc)return [];
  if(Number.isInteger(sc.logStart))return clone(s.log.slice(sc.logStart));
