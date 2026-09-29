@@ -1,1 +1,5 @@
 .DS_Store
+
+# Local review tools; excluded from the public game repository and Pages.
+/dist/dev-mode.*
+/dist/script-reader.*
