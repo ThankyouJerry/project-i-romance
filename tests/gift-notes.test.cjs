@@ -26,7 +26,7 @@ for(const c of CAST){
  assert.equal(G.giftMemory(G.migrate(legacy),c.id),null,`${c.id}: progress alone cannot reveal a preference`);
  const oldCopy=clone(legacy);available(oldCopy,c);assert(G.visit(oldCopy,c.id));
  assert.equal(G.giftMemory(oldCopy,c.id),null);complete(oldCopy);
- const recovered=G.giftMemory(oldCopy,c.id);assert(recovered);assert.equal(recovered.source.title,c.events[1][0]);
+ assert.equal(G.giftMemory(oldCopy,c.id),null,'unrelated later chapters never inject missing preferences');
  assert.equal(legacy.log.length,0,'reading memory never fabricates dialogue');
  assert.equal(memory.source.title,c.events[0][0]);assert.equal(memory.source.day,s.log.find(l=>l.text===memory.quote).day);
  const wrong=G.fresh('다른 사람의 말');wrong.progress[c.id]=8;wrong.log.push({speaker:'나',text:memory.quote,day:1,characterId:c.id});assert.equal(G.giftMemory(wrong,c.id),null);
@@ -82,3 +82,21 @@ for(const c of CAST){
  assert.equal(G.gift(noMoney,c.id,G.giftMemory(noMoney,c.id).id),false);assert.equal(noMoney.gifts[c.id],false);
 }
 console.log('PASS: clue unlocks only when heard, mid-episode saves retain it, gift cap changes are exact and insufficient money leaves gift eligibility intact.');
+
+// Preferences are authored in context before the final question, never appended
+// to a different episode to unlock an answer for old saves.
+for(const c of CAST){
+ const memory=ctx.GIFT_MEMORIES[c.id],raw=c.events[0][6],at=raw.indexOf(memory.quote);
+ assert(at>0&&at<raw.length-2,c.id+': return to scene question after preference');
+ for(const score of [c.events[0][4][1],c.events[0][5][1]]){
+  const s=G.fresh('대사 검수');available(s,c);G.visit(s,c.id);
+  while(s.scene.step<at){assert.equal(G.giftMemory(s,c.id),null);G.next(s);}
+  assert.equal(G.giftMemory(s,c.id).quote,s.scene.lines[s.scene.step][1]);
+  choices(s);assert(G.choose(s,s.scene.options.findIndex(o=>o.score===score)));complete(s);
+  available(s,c);assert(G.gift(s,c.id,memory.id));assert.equal(s.scene.lines[1][1],memory.reply);
+ }
+ const progressed=G.fresh('듣지 않은 저장');progressed.progress[c.id]=8;
+ assert.equal(G.giftMemory(progressed,c.id),null);
+ assert.equal(G.gift(progressed,c.id,memory.id),false);
+}
+console.log('PASS: all 11 authored gift clues precede the scene question, unlock only on the spoken line, and lead to matching gift responses for both choices.');

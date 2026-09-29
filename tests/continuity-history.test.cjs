@@ -82,3 +82,11 @@ console.log('PASS: Ori outings follow outfit progression at episodes 2/6 without
 assert.equal(CAST.find(c=>c.id==='popo').events[3][5][1],1,'resting after a mistake is a supportive choice');
 assert(ctx.ROMANCE_ENDINGS.mone[2][2].includes('연구실 지원 결과는 아직'));
 assert(ctx.ROMANCE_ENDINGS.rose[0][2].includes('천천히 손을 내렸다'));
+
+const ohwayo=G.byId('ohwayo');
+for(const p of [1,7,8]){const s=G.fresh('공연 순서');s.progress.ohwayo=p;s.dates.ohwayo=1;available(s,ohwayo);const before=JSON.stringify(s);assert.equal(G.outing(s,'ohwayo'),p===8);if(p<8)assert.equal(JSON.stringify(s),before);}
+assert(!ohwayo.events[6][6][0].includes('공연 당일'));
+assert(ctx.STORY_VARIANTS.ohwayo[7].no[1].includes('지난 리허설'));
+assert(!G.byId('dragon').outings[0][3].some(x=>x.includes('지원서')));
+assert(G.byId('mone').events[1][3].includes('원래 책갈피'));
+console.log('PASS: concert follow-up waits for episode 8; rehearsal and job-application chronology and original bookmark custody are explicit.');

@@ -10,11 +10,11 @@ const variant=(id,n,at,yes,no)=>{(window.STORY_VARIANTS[id]??={})[n-1]={at:at-1,
 // A completed call cannot be answered again.
 choice('honey',5,1,'다음 연락이 오면 제가 옆에서 거절하는 걸 도와드릴까요?','마음은 고마워요. 그래도 먼저 내가 답해볼게요. 어려우면 그때 도와줘요.');
 // Avoid assuming the player praised the song earlier.
-line('ohwayo',5,1,'아, 미안해. 혼자 연습하다가 시간이 이렇게 된 줄 몰랐네.');
+line('ohwayo',5,1,'아, 미안해. 어젯밤엔 혼자 연습하다가 그렇게 늦어진 줄 몰랐네.');
 const oh8=[...event('ohwayo',8)[6]];
 const oh8away=[...oh8];
 oh8away[0]='공연이 끝났다는 오화요의 문자를 받고 공연장으로 돌아왔다. 관객들이 떠난 객석 앞에서 그녀가 접힌 악보를 들고 기다리고 있었다.';
-oh8away[1]='문자 보고 와줬네. 아까 리허설 때 네가 앉아 있던 자리를 보니까 조금 덜 떨리더라.';
+oh8away[1]='문자 보고 와줬네. 지난 리허설 때 네가 앉아 있던 자리를 보니까 조금 덜 떨리더라.';
 variant('ohwayo',8,7,oh8,oh8away);
 // Repair a disagreement explicitly before returning to the shared story.
 const y7=[...event('yui',7)[6]];
@@ -68,4 +68,17 @@ line('popo',8,5,'니 만나는 날이 기다려진다. 일하는 나도 쉬는 �
 line('ori',8,5,'일이 없어도 너를 만나고 싶어요. 오늘은 그런 마음이 있다는 걸 먼저 말해보고 싶었어요.');
 // Research remains undecided, but the characters explicitly agree how to handle it.
 ROMANCE_ENDINGS.mone[2][2]=ROMANCE_ENDINGS.mone[2][2].replace('우리는 미래의 답을 전부 알지 못했다.', '연구실 지원 결과는 아직 기다리는 중이었다. 선배는 소식이 오면 바로 알려주겠다고 했고, 우리는 다른 도시에 가더라도 먼저 가능한 날짜를 맞춰보기로 했다.\n우리는 미래의 답을 전부 알지 못했다.');
+// Optional outings must not reveal events before their main-story introduction.
+cast.ohwayo.outingMinProgress=[1,8];
+cast.ohwayo.outings[1][0]='공연 뒤의 휴식';
+cast.ohwayo.outings[1][1]='공연을 마친 뒤 처음 함께 쉬는 날이었다. 오화요는 노래 대신 내 이야기를 듣고 싶다며 찻잔을 감싸 쥐었다.';
+line('ohwayo',7,0,'공연을 앞둔 리허설 날, 음향에 문제가 생겼다. 오화요는 마이크를 내리고 텅 빈 객석을 바라봤다.');
+line('ohwayo',7,3,'공연 날 마지막 말은 노래 끝나고 해도 될까? 미리 하면 노래를 못 할 것 같아.');
+line('ohwayo',7,5,'공연 날에도 끝날 때까지 기다려줄 거지?');
+choice('ohwayo',7,1,'공연 끝나면 문자 주세요.','응. 그날 끝나면 바로 보낼게. 그때 잠깐 만나자.');
+cast.dragon.outings[0][3][1]='다음 근무 얘기 꺼내기';
+const moneSecond=event('mone',2);
+moneSecond[3]='선배는 책을 넣으며 내 눈치를 살폈다. 퍼즐이 적힌 원래 책갈피는 다음에 이어서 풀자며 내게 맡겼다.';
+if(moneSecond[6])moneSecond[6][2]=moneSecond[3];
+cast.mone.outings[0][5]='그렇게 읽을 수도 있겠네. 그 이유도 재미있다. 한 번 더 읽어봐야겠어.';
 })();
