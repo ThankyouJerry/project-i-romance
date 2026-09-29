@@ -1,6 +1,6 @@
 const {readFileSync}=require('node:fs'),vm=require('node:vm'),assert=require('node:assert/strict');
 const ctx=vm.createContext({window:{}});
-for(const file of ['story','chapters','chapters-more','world','endings','wardrobe','reactions','route-revisions','gift-memories','story-continuity','engine']){vm.runInContext(readFileSync(`dist/${file}.js`,'utf8'),ctx);for(const k of ['CAST','EXTRA_CHAPTERS','WORLD','GIFTS','ROMANCE_ENDINGS','LOOK_LABELS','CHARACTER_REACTIONS','Game'])if(ctx.window[k])ctx[k]=ctx.window[k];}
+for(const file of ['story','chapters','chapters-more','world','endings','wardrobe','reactions','route-revisions','gift-memories','story-continuity','addressing','engine']){vm.runInContext(readFileSync(`dist/${file}.js`,'utf8'),ctx);for(const k of ['CAST','EXTRA_CHAPTERS','WORLD','GIFTS','ROMANCE_ENDINGS','LOOK_LABELS','CHARACTER_REACTIONS','Game'])if(ctx.window[k])ctx[k]=ctx.window[k];}
 const {CAST,Game:G}=ctx,clone=x=>JSON.parse(JSON.stringify(x));
 function available(s,c){let guard=0;while(G.availability(s,c)&&!G.over(s)&&guard++<5)G.pass(s);assert.equal(G.availability(s,c),null);}
 function complete(s,best=true){let guard=0;while(s.scene&&guard++<30){if(s.scene.choice&&s.scene.step===s.scene.lines.length){const scores=s.scene.options.map(o=>o.score);G.choose(s,scores.indexOf(best?Math.max(...scores):Math.min(...scores)));}else G.next(s);assert.ok(G.valid(s),'save remains valid');}assert.equal(s.scene,null);}
@@ -16,7 +16,7 @@ const migrated=G.migrate(old);assert.ok(migrated);assert.equal(migrated.progress
 const mid=G.fresh('중간');G.pass(mid);G.visit(mid,'honey');while(mid.scene.step<mid.scene.lines.length)G.next(mid);G.choose(mid,mid.scene.options.findIndex(o=>o.score===2));const resumed=G.migrate(clone(mid));assert.ok(resumed);const affinity=resumed.affinity.honey;complete(resumed);assert.equal(resumed.affinity.honey,affinity);assert.equal(resumed.progress.honey,1);
 const broken=clone(resumed);broken.journal.push({id:'missing',title:'bad',day:1});assert.equal(G.migrate(broken),null);const badScene=clone(mid);badScene.scene.choice=true;badScene.scene.options=null;assert.equal(G.migrate(badScene),null);
 const broke=G.fresh('예산');broke.money=0;broke.progress.aya=1;assert.equal(G.outing(broke,'aya'),false);assert.equal(G.gift(broke,'aya','keyring'),false);G.pass(broke,true);assert.equal(broke.money,6000);
-for(const score of [0,2]){const e=G.fresh('기억');e.progress.honey=4;e.choices.honey[3]=score;G.pass(e);G.visit(e,'honey');assert.ok(e.scene.lines.some(l=>l[1].includes(score===2?'케이크를 나눠':'너무 빨리')));}
+for(const score of [0,2]){const e=G.fresh('기억');e.honeyAddress='formal';e.progress.honey=4;e.choices.honey[3]=score;G.pass(e);G.visit(e,'honey');assert.ok(e.scene.lines.some(l=>l[1].includes(score===2?'케이크를 나눠':'너무 빨리')));}
 console.log('PASS: 88 chapters; 22 outings/both branches; 23 endings and blocked premature confession; schedule, budget, gifts, anti-repeat, save migration, reaction resume, prior-choice callbacks, malformed saves.');
 
 for(const c of CAST){const pages=ctx.ROMANCE_ENDINGS[c.id];assert.equal(pages.length,3);assert.ok(pages.every(p=>p[2].length>220));assert.match(pages[0][2],/사귀|사귈|연인/);const s=G.fresh("검증");s.affinity[c.id]=100;s.progress[c.id]=8;G.finish(s,c.id);s.ending.page=2;assert.ok(G.migrate(s));s.ending.page=3;assert.equal(G.migrate(s),null);}
@@ -31,7 +31,7 @@ for(const c of CAST)for(const gift of ctx.GIFTS){
  assert.ok(G.gift(s,c.id,gift.id),`${c.id}/${gift.id}`);
  assert.equal(s.affinity[c.id],8);assert.equal(s.scene.delta,8);assert.equal(s.scene.mood,8);
  assert.equal(s.money,money-gift.cost);assert.equal(s.gifts[c.id],true);
- assert.equal(s.scene.lines[1][1],ctx.CHARACTER_REACTIONS[c.id][c.gift===gift.id?'giftGood':'giftOther']);
+ assert.equal(s.scene.lines[1][1],c.id==='honey'?G.formatText(s,ctx.window.ADDRESSING_HONEY.formal.giftOther):ctx.CHARACTER_REACTIONS[c.id][c.gift===gift.id?'giftGood':'giftOther']);
  const resumed=G.migrate(clone(s));assert.ok(resumed);complete(resumed);assert.equal(resumed.affinity[c.id],8);
  complete(s);assert.equal(s.affinity[c.id],8);available(s,c);assert.equal(G.gift(s,c.id,gift.id),false);
 }

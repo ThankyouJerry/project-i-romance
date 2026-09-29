@@ -2,7 +2,7 @@ const {readFileSync}=require('node:fs');
 const vm=require('node:vm');
 const assert=require('node:assert/strict');
 const ctx=vm.createContext({window:{}});
-for(const file of ['story','chapters','chapters-more','world','endings','wardrobe','reactions','route-revisions','gift-memories','story-continuity','engine']){
+for(const file of ['story','chapters','chapters-more','world','endings','wardrobe','reactions','route-revisions','gift-memories','story-continuity','addressing','engine']){
  vm.runInContext(readFileSync(`dist/${file}.js`,'utf8'),ctx,{filename:`${file}.js`});
  for(const key of Object.keys(ctx.window))ctx[key]=ctx.window[key];
 }
@@ -93,7 +93,7 @@ for(const c of CAST){
   while(s.scene.step<at){assert.equal(G.giftMemory(s,c.id),null);G.next(s);}
   assert.equal(G.giftMemory(s,c.id).quote,s.scene.lines[s.scene.step][1]);
   choices(s);assert(G.choose(s,s.scene.options.findIndex(o=>o.score===score)));complete(s);
-  available(s,c);assert(G.gift(s,c.id,memory.id));assert.equal(s.scene.lines[1][1],memory.reply);
+  available(s,c);assert(G.gift(s,c.id,memory.id));assert.equal(s.scene.lines[1][1],G.giftMemory(s,c.id).reply);
  }
  const progressed=G.fresh('듣지 않은 저장');progressed.progress[c.id]=8;
  assert.equal(G.giftMemory(progressed,c.id),null);

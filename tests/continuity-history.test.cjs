@@ -50,7 +50,7 @@ for(const c of CAST){
  for(const {p,echo} of callbacks){
   callbackCount++;assert(echo.at<p,`${c.id}: callback references an earlier episode`);assert.notEqual(echo.yes,echo.no);
   for(const score of [2,0]){
-   const s=G.fresh('선택 검증');s.progress[c.id]=p;s.choices[c.id][echo.at]=score;available(s,c);assert(G.visit(s,c.id));
+   const s=G.fresh('선택 검증');s.honeyAddress='formal';s.progress[c.id]=p;s.choices[c.id][echo.at]=score;available(s,c);assert(G.visit(s,c.id));
    const lines=s.scene.lines.map(l=>l[1]);assert(lines.includes(score===2?echo.yes:echo.no),`${c.id}/${p}: correct remembered branch`);assert(!lines.includes(score===2?echo.no:echo.yes),`${c.id}/${p}: other branch hidden`);assert(G.valid(s));
   }
  }

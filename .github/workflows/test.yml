@@ -14,3 +14,4 @@ jobs:
       - run: node tests/visual-state.test.cjs
       - run: node tests/gift-notes.test.cjs
       - run: node tests/continuity-history.test.cjs
+      - run: node tests/addressing.test.cjs
