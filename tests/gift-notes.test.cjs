@@ -23,14 +23,13 @@ for(const c of CAST){
  assert(memory.cost>0);assert(!ids.has(memory.id),'unique gift id');ids.add(memory.id);
  assert(firstScene.some(([speaker,text])=>speaker===c.name&&text.includes(memory.quote)),`${c.id}: clue came from spoken first-scene dialogue`);
  const legacy=G.fresh('이전 저장');legacy.progress[c.id]=1;
- const oldMemory=G.giftMemory(G.migrate(legacy),c.id);
- assert.equal(oldMemory.id,memory.id,`${c.id}: old saves can still select gift`);
- assert.equal(oldMemory.quote,'',`${c.id}: do not invent a previously heard quotation`);
- assert.equal(oldMemory.clue,c.clue,`${c.id}: preserve the clue from the old episode`);
- assert.equal(oldMemory.reply,ctx.CHARACTER_REACTIONS[c.id].giftOther,`${c.id}: welcome without claiming prior conversation`);
- const oldCopy=clone(legacy);available(oldCopy,c);assert(G.gift(oldCopy,c.id,oldMemory.id));
- assert(oldCopy.scene.lines.some(([speaker,text])=>speaker===c.name&&text===oldMemory.reply));
- assert.equal(legacy.log.length,0,'reading a legacy clue must not fabricate a conversation');
+ assert.equal(G.giftMemory(G.migrate(legacy),c.id),null,`${c.id}: progress alone cannot reveal a preference`);
+ const oldCopy=clone(legacy);available(oldCopy,c);assert(G.visit(oldCopy,c.id));
+ assert.equal(G.giftMemory(oldCopy,c.id),null);complete(oldCopy);
+ const recovered=G.giftMemory(oldCopy,c.id);assert(recovered);assert.equal(recovered.source.title,c.events[1][0]);
+ assert.equal(legacy.log.length,0,'reading memory never fabricates dialogue');
+ assert.equal(memory.source.title,c.events[0][0]);assert.equal(memory.source.day,s.log.find(l=>l.text===memory.quote).day);
+ const wrong=G.fresh('다른 사람의 말');wrong.progress[c.id]=8;wrong.log.push({speaker:'나',text:memory.quote,day:1,characterId:c.id});assert.equal(G.giftMemory(wrong,c.id),null);
  const early=G.fresh('아직 만남 전');available(early,c);assert.equal(G.gift(early,c.id,memory.id),false);
  available(s,c);const money=s.money,before=s.affinity[c.id];
  assert(G.gift(s,c.id,memory.id));assert.equal(s.money,money-memory.cost);assert.equal(s.affinity[c.id]-before,8);
@@ -40,7 +39,7 @@ for(const c of CAST){
  available(saved,c);assert.equal(G.gift(saved,c.id,memory.id),false,`${c.id}: one-gift limit`);
 }
 assert.equal(G.giftMemory(G.fresh('오류'),'missing'),null);
-console.log('PASS: 11 remembered gifts have spoken first-episode provenance, notebook clues, legacy unlocks, costs, warm replies and one-gift save protection.');
+console.log('PASS: 11 remembered gifts have spoken first-episode provenance, notebook clues, strict heard-only unlocks, costs, warm replies and one-gift save protection.');
 
 // Actual changes, rather than raw option scores, must survive in the notebook.
 for(const c of CAST)for(const [initial,score,expected] of [[30,2,12],[98,2,2],[100,2,0],[30,0,-3],[1,0,-1],[0,0,0]]){
@@ -74,12 +73,12 @@ for(const c of CAST){
  assert(G.giftMemory(reading,c.id),'heard preference unlocks before episode completion');
  assert.equal(reading.progress[c.id],0);assert(G.giftMemory(G.migrate(reading),c.id));
  for(const [initial,delta] of [[98,2],[100,0]]){
-  const s=G.fresh('선물 상한');s.progress[c.id]=1;s.affinity[c.id]=initial;available(s,c);
+  const s=G.fresh('선물 상한');available(s,c);G.visit(s,c.id);complete(s);s.affinity[c.id]=initial;available(s,c);
   const gift=G.giftMemory(s,c.id);assert(G.gift(s,c.id,gift.id));
-  const notes=G.observations(s,c.id);assert.equal(notes.length,1);assert.equal(notes[0].delta,delta);assert.equal(notes[0].reply,gift.reply);assert.equal(s.scene.delta,delta);
-  const restored=G.migrate(clone(s));assert(restored);complete(restored);assert.equal(G.observations(restored,c.id).length,1);
+  const notes=G.observations(s,c.id).filter(n=>n.title==='기억해 둔 작은 선물');assert.equal(notes.length,1);assert.equal(notes[0].delta,delta);assert.equal(notes[0].reply,gift.reply);assert.equal(s.scene.delta,delta);
+  const restored=G.migrate(clone(s));assert(restored);complete(restored);assert.equal(G.observations(restored,c.id).filter(n=>n.title==='기억해 둔 작은 선물').length,1);
  }
- const noMoney=G.fresh('예산 없음');noMoney.progress[c.id]=1;noMoney.money=0;available(noMoney,c);
+ const noMoney=G.fresh('예산 없음');available(noMoney,c);G.visit(noMoney,c.id);complete(noMoney);noMoney.money=0;available(noMoney,c);
  assert.equal(G.gift(noMoney,c.id,G.giftMemory(noMoney,c.id).id),false);assert.equal(noMoney.gifts[c.id],false);
 }
 console.log('PASS: clue unlocks only when heard, mid-episode saves retain it, gift cap changes are exact and insufficient money leaves gift eligibility intact.');

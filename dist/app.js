@@ -51,7 +51,7 @@ function galleryLook(id,look){const c=G.byId(id),found=galleryCollection();if(!c
  $('#modal').scrollTop=0;
 }
 
-function giftClue(c,memory){return `<div class="gift-clue"><strong>${esc(c.name)} · ${esc(memory.name)}</strong><p>${esc(memory.clue)}</p>${memory.quote?`<blockquote>“${esc(memory.quote)}”</blockquote>`:''}</div>`}
+function giftClue(c,memory){return `<div class="gift-clue"><strong>${esc(c.name)}</strong><small>${memory.source.day}일차 · ${esc(memory.source.title)}</small><blockquote>“${esc(memory.quote)}”</blockquote></div>`}
 function observationEntry(o){const delta=Number(o.delta)||0;return `<details class="journal-observation"><summary><span>${o.day}일차 · ${esc(G.byId(o.characterId)?.name||'함께한 기억')}</span><strong>${esc(o.title)}</strong><small class="bond-change ${delta<0?'negative':delta>0?'positive':''}">친밀도 ${delta>0?'+':''}${delta}</small></summary><div class="observation-body"><p><b>내가 전한 말과 마음</b>${esc(o.choice)}</p><p><b>돌아온 답</b>${esc(o.reply)}</p><p class="observation-note">${esc(o.note)}</p></div></details>`}
 let journalPerson='all';
 function journal(id=journalPerson){journalPerson=id==='all'||G.byId(id)?id:'all';id=journalPerson;
