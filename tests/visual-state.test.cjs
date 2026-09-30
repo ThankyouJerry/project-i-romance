@@ -57,3 +57,20 @@ assert(!ROMANCE_ENDINGS.siyo[1][2].includes('주머니'));assert.match(ROMANCE_E
 for(const f of ctx.WARDROBE_TEXT_FIXES){const s=G.fresh('기존 기록');const c=G.byId(f.id);while(G.availability(s,c))G.pass(s);G.visit(s,c.id);s.scene.lines=[['',f.from]];s.scene.step=0;s.log=[{speaker:'',text:f.from,day:1,characterId:f.id,sceneTitle:f.from}];s.journal=[{id:f.id,title:f.from,day:1}];const before=JSON.stringify(s);const saved=G.migrate(s);assert(saved);assert.equal(saved.scene.lines[0][1],f.to);assert.equal(saved.log[0].text,f.to);assert.equal(saved.log[0].sceneTitle,f.to);assert.equal(saved.journal[0].title,f.to);assert.equal(saved.scene.step,0);assert.equal(saved.turn,s.turn);assert.deepEqual(saved.affinity,s.affinity);assert.deepEqual(saved.progress,s.progress);assert.equal(JSON.stringify(s),before,'input save must remain untouched');assert.deepEqual(G.migrate(saved),saved,'migration is idempotent');}
 console.log('PASS: outfit color/type/accessory prose and exact legacy text repair without progress or affinity changes.');
 assert.match(G.byId('dragon').normal[1],/교대를 마치고 후드 차림으로 갈아입/);
+
+// Friendship-ending outfits must be discoverable on a romance playthrough too.
+vm.runInContext(fs.readFileSync('dist/gallery.js','utf8'),ctx);const Gallery=ctx.window.Gallery;
+assert.equal(Gallery.seen(G.fresh('처음')).length,0,'fresh players have no unlocked outfits');
+for(const [id,index] of [['yui',5],['siyo',7],['siho',4]]){
+ for(const option of [0,1]){
+  const c=G.byId(id),s=G.fresh('옷장 검사');s.progress[id]=index;s.turn=c.hours[0];
+  assert(G.visit(s,id));assert.equal(s.scene.mood,2);assert(Gallery.seen(s).includes(id+':2'),'viewing this scene unlocks the cardigan');
+  while(s.scene.step<s.scene.lines.length)G.next(s);G.choose(s,option);
+  assert.equal(s.scene.mood,2,'both responses retain the cardigan');assert(G.migrate(s));
+ }
+}
+for(const c of CAST){
+ const reachable=[...c.moods,...c.outingMoods,...ROMANCE_ENDINGS[c.id].map(p=>p[3]??2)];
+ for(const group of Gallery.outfits(c))assert(group.looks.some(n=>reachable.includes(n)),c.id+' '+group.name+' must not require a friendship ending');
+}
+console.log('PASS: 3 cardigans unlock during main episodes, persist after either choice, and all 55 outfits are reachable without friendship endings.');

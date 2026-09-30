@@ -81,4 +81,8 @@ const moneSecond=event('mone',2);
 moneSecond[3]='선배는 책을 넣으며 내 눈치를 살폈다. 퍼즐이 적힌 원래 책갈피는 다음에 이어서 풀자며 내게 맡겼다.';
 if(moneSecond[6])moneSecond[6][2]=moneSecond[3];
 cast.mone.outings[0][5]='그렇게 읽을 수도 있겠네. 그 이유도 재미있다. 한 번 더 읽어봐야겠어.';
+// These cardigans also appear before the ending, on existing visits.
+line('yui',6,0,'약속한 식사 시간이 지났는데 연락이 없었다. 나는 음식이 식어가는 식탁 앞에서 기다렸다. 잠시 뒤 초인종이 울리고, 하늘색 카디건을 걸친 담유이가 문 앞에 나타났다.');
+line('siyo',8,4,'창밖에서 같은 골목의 차 소리가 들렸다. 집 앞이라는 말에 창가로 다가가니, 크림색 카디건을 걸친 하시요가 올려다보고 있었다.');
+line('siho',5,0,'카페에서 류시호에게 게임 친구들의 모임 이야기를 꺼냈다. 흰 카디건에 꽃 장식을 단 그녀는 초대 메시지를 읽다가 조심스럽게 나를 봤다.');
 })();
