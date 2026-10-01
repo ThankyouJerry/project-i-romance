@@ -1,15 +1,18 @@
 'use strict';
 window.Gallery=(()=>{
- const sets=[{name:'외출 차림',looks:[2]},{name:'편안한 일상',looks:[3]},{name:'산책 차림',looks:[4]},{name:'특별한 데이트',looks:[5]},{name:'일상 속 첫 만남',looks:[6,7,8,0,1]}];
+ const sets=[{name:'일상 속 첫 만남',looks:[6,7,8,0,1]},{name:'외출 차림',looks:[2]},{name:'편안한 일상',looks:[3]},{name:'산책 차림',looks:[4]},{name:'특별한 데이트',looks:[5]}];
  const validKey=k=>typeof k==='string'&&CAST.some(c=>Array.from({length:9},(_,i)=>c.id+':'+i).includes(k));
  function clean(a){return Array.isArray(a)?[...new Set(a.filter(validKey))]:[];}
  function merge(...a){return clean(a.flat());}
- function seen(s){if(!s)return[];const out=[];const add=(id,n)=>{if(Number.isInteger(n)&&n>=0&&n<=8)out.push(id+':'+n);};
- for(const c of CAST){for(let i=0;i<(s.progress?.[c.id]||0);i++)add(c.id,c.moods[i]);for(let i=0;i<(s.dates?.[c.id]||0);i++)add(c.id,c.outingMoods[i]);if(s.gifts?.[c.id])add(c.id,8);}
- if(s.scene)add(s.scene.id,s.scene.mood);
- if(s.ending&&s.ending.id!=='solo'){const c=CAST.find(c=>c.id===s.ending.id);if(c){if(s.ending.kind==='good')ROMANCE_ENDINGS[c.id].slice(0,(s.ending.page||0)+1).forEach(p=>add(c.id,p[3]??2));else add(c.id,c.normalMood??2);}}
- return clean(out);}
+ function sources(a){if(!a||typeof a!=='object'||Array.isArray(a))return{};return Object.fromEntries(Object.entries(a).filter(([k,v])=>validKey(k)&&v&&Number.isInteger(v.day)&&v.day>=1&&v.day<=28&&typeof v.title==='string'&&v.title.length<=300&&['event','date','gift','afterstory','ending'].includes(v.kind)));}
+ function seen(s){return Object.keys(sources(s?.looks));}
+ function record(s){if(!s)return[];let id,mood,title,kind;const sc=s.scene;
+ if(sc){({id,mood,type:kind}=sc);title=(sc.type==='event'?`${sc.index+1}화 · `:sc.type==='afterstory'?'후일담 · ':'')+sc.title;}
+ else if(s.ending&&s.ending.id!=='solo'){id=s.ending.id;kind='ending';const c=CAST.find(c=>c.id===id);if(!c)return seen(s);const p=Game.endingPages(s)?.[s.ending.page||0];mood=p?.[3]??c.normalMood??2;title=p?'연애 결말 · '+p[1]:'우정 결말 · '+c.normal[0];}
+ if(!validKey(id+':'+mood))return seen(s);if(mood<2)mood+=6;
+ s.looks=sources(s.looks);const key=id+':'+mood;if(!s.looks[key])s.looks[key]={day:Game.day(s),title,kind};return seen(s);}
  function outfits(c){return sets.map(g=>({...g,name:c.id==='ori'&&g.looks[0]===3?'집에서도 정장':g.name,looks:[...g.looks]}));}
- function fromEndings(entries){const out=[];if(!Array.isArray(entries))return out;for(const c of CAST){if(entries.includes(c.id+'-good')){out.push(c.id+':'+c.moods[0]);for(const p of ROMANCE_ENDINGS[c.id])out.push(c.id+':'+(p[3]??2));}if(entries.includes(c.id+'-normal'))out.push(c.id+':'+c.moods[0],c.id+':'+(c.normalMood??2));}return clean(out);}
- return{clean,merge,seen,outfits,fromEndings};
+ // A historical ending flag proves neither which pages nor which clothes were seen.
+ function fromEndings(){return[];}
+ return{clean,merge,sources,seen,record,outfits,fromEndings};
 })();

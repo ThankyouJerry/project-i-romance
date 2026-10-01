@@ -1,7 +1,7 @@
 'use strict';
 const fs=require('node:fs'),vm=require('node:vm'),assert=require('node:assert/strict');
 const ctx=vm.createContext({window:{}});
-for(const f of ['story','chapters','chapters-more','world','endings','wardrobe','reactions','route-revisions','gift-memories','story-continuity','addressing','engine']){
+for(const f of ['story','chapters','chapters-more','world','endings','wardrobe','reactions','route-revisions','gift-memories','story-continuity','addressing','after-stories','engine']){
  vm.runInContext(fs.readFileSync(`dist/${f}.js`,'utf8'),ctx,{filename:f+'.js'});Object.assign(ctx,ctx.window);
 }
 const {Game:G,CAST}=ctx,clone=x=>JSON.parse(JSON.stringify(x));

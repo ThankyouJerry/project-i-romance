@@ -1,6 +1,6 @@
 const fs=require('node:fs'),vm=require('node:vm'),assert=require('node:assert/strict');
 const ctx=vm.createContext({window:{}});
-for(const f of ['story','chapters','chapters-more','world','endings','wardrobe','reactions','route-revisions','gift-memories','story-continuity','addressing','engine']){vm.runInContext(fs.readFileSync(`dist/${f}.js`,'utf8'),ctx);Object.assign(ctx,ctx.window)}
+for(const f of ['story','chapters','chapters-more','world','endings','wardrobe','reactions','route-revisions','gift-memories','story-continuity','addressing','after-stories','engine']){vm.runInContext(fs.readFileSync(`dist/${f}.js`,'utf8'),ctx);Object.assign(ctx,ctx.window)}
 const {CAST,Game:G,WORLD,ROMANCE_ENDINGS}=ctx;
 const usedPlaces=new Set();
 for(const c of CAST){
@@ -64,7 +64,7 @@ assert.equal(Gallery.seen(G.fresh('처음')).length,0,'fresh players have no unl
 for(const [id,index] of [['yui',5],['siyo',7],['siho',4]]){
  for(const option of [0,1]){
   const c=G.byId(id),s=G.fresh('옷장 검사');s.progress[id]=index;s.turn=c.hours[0];
-  assert(G.visit(s,id));assert.equal(s.scene.mood,2);assert(Gallery.seen(s).includes(id+':2'),'viewing this scene unlocks the cardigan');
+  assert(G.visit(s,id));assert.equal(s.scene.mood,2);assert.equal(Gallery.seen(s).length,0);Gallery.record(s);assert(Gallery.seen(s).includes(id+':2'),'viewing this scene unlocks the cardigan');
   while(s.scene.step<s.scene.lines.length)G.next(s);G.choose(s,option);
   assert.equal(s.scene.mood,2,'both responses retain the cardigan');assert(G.migrate(s));
  }
