@@ -4,7 +4,7 @@
 
 - 기본 루트는 게임 선택 화면. `?game=romance`는 기존 미연시, `merge.html`은 별도 얼굴 합체 게임.
 - 미연시의 기존 실행 스크립트 순서와 저장 키를 유지. 본편/후일담/앨범/이미지 등 기존 추적 dist 파일은 index.html을 제외하고 바이트 단위로 동일.
-- 프로필 10명은 기존 sources.json의 사용자 제공 자료를 재사용. 오리고기 원본 프로필은 없어 수박게임에서 제외. 기존 미연시 11명은 모두 유지.
+- 프로필 10명은 기존 sources.json의 사용자 제공 자료를 재사용. 오리고기 SD 원본은 과거 첨부 이력에서 확인했으나 현재 파일이 없어 복구·재첨부 대기. 기존 미연시 11명은 모두 유지.
 - 자체 고정 시간 간격 원형 물리, 같은 단계 합체, 점수/최고점수, 다음 얼굴, 터치/마우스/키보드, 일시정지/재시작/게임오버.
 - 미연시로 돌아가기 전에 게임 선택으로 나가는 링크는 기존 타이틀 화면에만 추가하여 대화·선택지와 겹치지 않음.
 
@@ -25,3 +25,9 @@
 - GitHub main push, CI/Pages 배포 및 공개 URL 확인.
 
 2026-10-05 UTC: 첫 sandbox headless Chrome 시작이 SIGABRT로 종료. 정식 권한 승인 후 별도 임시 프로필 headless 실행은 두 화면 캡처를 완료하고 정상 exit 0. 기존 Chrome UI를 조작하거나 기존 사용자 프로필에 연결하지 않음. 부모의 Chrome 충돌 진단 요청에 따라 추가 브라우저 실행 중지. 부모 진단은 첫 실패 PID와 sandbox mach lookup 거부가 일치하며 시스템 부하가 매우 높다고 보고. WebKit/Firefox 실행파일은 설치되어 있지 않음. 자원 안정 후 단일 승인 브라우저 검증을 재개해야 함. VM 하네스 통과는 실제 모바일 플레이를 대체한 완료 주장으로 사용하지 않음.
+
+## Original Ori attachment correction
+
+The original game thread `01a0e6a0-d1b4-7f82-9806-5be16adf5d69`, turn `01a0e823-eb71-7712-8f39-8c2d3b904e0f`, contains the user's SD character attachment `codex-clipboard-a7edb192-a06e-4716-be14-aa8b57e2791a.png`. The source was supplied; the prior assumption that it was never supplied was wrong. The old temporary path no longer exists, and matching files were not found in the relevant project/temporary paths. The same path appears in `game/references/art-v6-prompts.json`. Reattachment/recovery is requested; generated art is not a substitute.
+
+The other ten faces now use tighter Canvas source rectangles. Original image bytes remain unchanged. A lightweight native Canvas rendering of the actual shipping `faceDraw` function was inspected, including a corrected lower face center for Yui. Preview: task-3/qa/face-framing.png. No browser was launched for this framing check. Physics and UI harness tests passed after this change.

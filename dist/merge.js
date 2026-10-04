@@ -2,13 +2,13 @@
 (() => {
 const $=s=>document.querySelector(s), {World,RADII}=MergePhysics;
 // Normalized square crops of existing, user-supplied reference images (no generated substitutes).
-// Same order as CAST, omitting ori because no original profile was supplied.
+// Same order as CAST. Ori awaits recovery of the user-supplied SD attachment.
 const faces=[
- ['honey','허니츄러스','jpeg',.50,.19,.25],['ohwayo','오화요','jpeg',.50,.10,.28],
- ['dragon','디디디용','jpeg',.49,.21,.34],['yui','담유이','jpeg',.50,.14,.31],
- ['aya','아야','jpeg',.50,.12,.30],['siyo-alt','하시요','jpeg',.48,.47,.67],
- ['mone','비올레타 모네','jpeg',.50,.14,.30],['rose','블레어 로즈','jpeg',.48,.10,.31],
- ['popo','포포포포','jpeg',.47,.18,.34],['siho','류시호','png',.67,.22,.28]
+ ['honey','허니츄러스','jpeg',.50,.20,.20],['ohwayo','오화요','jpeg',.50,.10,.24],
+ ['dragon','디디디용','jpeg',.49,.21,.28],['yui','담유이','jpeg',.50,.17,.26],
+ ['aya','아야','jpeg',.50,.12,.26],['siyo-alt','하시요','jpeg',.48,.50,.48],
+ ['mone','비올레타 모네','jpeg',.50,.14,.26],['rose','블레어 로즈','jpeg',.48,.10,.27],
+ ['popo','포포포포','jpeg',.47,.18,.28],['siho','류시호','png',.67,.22,.24]
 ].map(([id,name,ext,x,y,size])=>({id,name,src:`assets/${id}.${ext}`,x,y,size}));
 const world=new World(), canvas=$('#board'),ctx=canvas.getContext('2d');let aim=200,paused=false,ready=false,last=0,acc=0,best=0,shownScore=-1,finished=false;
 try{best=Number(localStorage.getItem('neighbors-merge-best-v1'))||0}catch{}
