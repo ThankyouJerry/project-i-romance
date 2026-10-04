@@ -9,7 +9,7 @@ function element(){return {hidden:false,textContent:'',children:[],listeners:{},
  const context={console,Math,Promise,MergePhysics:physics,document:{hidden:false,querySelector(s){return els[s]??=(element())},createElement:element,createTextNode:x=>x,addEventListener(n,f){events[n]=f}},window:{addEventListener(n,f){windowEvents[n]=f}},localStorage:{getItem:k=>storage.get(k),setItem:(k,v)=>storage.set(k,v)},requestAnimationFrame:f=>frame=f,Image:class{width=1000;height=2000;set src(v){queueMicrotask(()=>this.onload())}}};
  vm.runInNewContext(fs.readFileSync('dist/merge.js','utf8').replace('const world=new World(),','const world=globalThis.testWorld=new World(()=>0),'),context);
  await new Promise(r=>setImmediate(r));const w=context.testWorld;let t=100;const advance=(n=1)=>{for(let i=0;i<n;i++){t+=1000/120;frame(t)}};
- assert(els['#overlay'].hidden);assert.equal(els['#faces'].children.length,10);assert.equal(els['#best'].textContent,10);
+ assert(els['#overlay'].hidden);assert.equal(els['#faces'].children.length,11);assert.equal(els['#best'].textContent,10);
  const board=els['#board'];const pointer=(type,x,id=1)=>board.listeners[type]({button:0,pointerId:id,clientX:x,pointerType:'touch',preventDefault:noop});
  pointer('pointerdown',30);pointer('pointermove',160);pointer('pointerup',160);assert.equal(w.balls.length,1);assert.equal(w.balls[0].x,200,'mobile CSS coordinates map to physics space');pointer('pointerup',160);assert.equal(w.balls.length,1,'release cannot double-drop');
  advance(70);pointer('pointerdown',30);board.listeners.pointercancel();pointer('pointerup',30);assert.equal(w.balls.length,1,'cancelled touch never drops');

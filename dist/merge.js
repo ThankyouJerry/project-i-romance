@@ -2,18 +2,19 @@
 (() => {
 const $=s=>document.querySelector(s), {World,RADII}=MergePhysics;
 // Normalized square crops of existing, user-supplied reference images (no generated substitutes).
-// Same order as CAST. Ori awaits recovery of the user-supplied SD attachment.
+// Same order as CAST; every portrait is an original user-supplied image.
 const faces=[
  ['honey','허니츄러스','jpeg',.50,.20,.20],['ohwayo','오화요','jpeg',.50,.10,.24],
  ['dragon','디디디용','jpeg',.49,.21,.28],['yui','담유이','jpeg',.50,.17,.26],
  ['aya','아야','jpeg',.50,.12,.26],['siyo-alt','하시요','jpeg',.48,.50,.48],
  ['mone','비올레타 모네','jpeg',.50,.14,.26],['rose','블레어 로즈','jpeg',.48,.10,.27],
- ['popo','포포포포','jpeg',.47,.18,.28],['siho','류시호','png',.67,.22,.24]
+ ['popo','포포포포','jpeg',.47,.18,.28],['siho','류시호','png',.67,.22,.24],
+ ['ori-original','오리고기','png',.50,.43,.86]
 ].map(([id,name,ext,x,y,size])=>({id,name,src:`assets/${id}.${ext}`,x,y,size}));
 const world=new World(), canvas=$('#board'),ctx=canvas.getContext('2d');let aim=200,paused=false,ready=false,last=0,acc=0,best=0,shownScore=-1,finished=false;
 try{best=Number(localStorage.getItem('neighbors-merge-best-v1'))||0}catch{}
 $('#best').textContent=best;
-function faceDraw(c,level,x,y,r,alpha=1){const f=faces[level];c.save();c.globalAlpha=alpha;c.beginPath();c.arc(x,y,r,0,Math.PI*2);c.fillStyle='#fffdf5';c.fill();c.clip();if(f.image){const im=f.image,s=im.width*f.size;c.drawImage(im,Math.max(0,f.x*im.width-s/2),Math.max(0,f.y*im.height-s/2),s,s,x-r,y-r,r*2,r*2)}c.restore();c.beginPath();c.arc(x,y,r,0,Math.PI*2);c.strokeStyle=['#ba737d','#919eb1','#ca9e4e','#68a9ba','#a28ac2','#a0ac87','#b586bb','#ba7170','#6da5b4','#c9ab73'][level];c.lineWidth=3;c.stroke()}
+function faceDraw(c,level,x,y,r,alpha=1){const f=faces[level];c.save();c.globalAlpha=alpha;c.beginPath();c.arc(x,y,r,0,Math.PI*2);c.fillStyle='#fffdf5';c.fill();c.clip();if(f.image){const im=f.image,s=im.width*f.size;c.drawImage(im,Math.max(0,f.x*im.width-s/2),Math.max(0,f.y*im.height-s/2),s,s,x-r,y-r,r*2,r*2)}c.restore();c.beginPath();c.arc(x,y,r,0,Math.PI*2);c.strokeStyle=['#ba737d','#919eb1','#ca9e4e','#68a9ba','#a28ac2','#a0ac87','#b586bb','#ba7170','#6da5b4','#c9ab73','#c3b84d'][level];c.lineWidth=3;c.stroke()}
 function render(){ctx.clearRect(0,0,400,600);ctx.fillStyle='#f8f4e7';ctx.fillRect(0,0,400,600);ctx.fillStyle='#e9e9d9';for(let y=100;y<590;y+=24)for(let x=20;x<390;x+=24){ctx.beginPath();ctx.arc(x,y,1,0,7);ctx.fill()}
 const danger=world.balls.some(b=>b.danger>0);ctx.strokeStyle=danger?'#c15443':'#b6bda8';ctx.lineWidth=1.5;ctx.setLineDash([5,6]);ctx.beginPath();ctx.moveTo(8,84);ctx.lineTo(392,84);ctx.stroke();ctx.setLineDash([]);ctx.fillStyle=danger?'#b44737':'#87927c';ctx.font='11px sans-serif';ctx.fillText(danger?'넘치기 전에 합쳐 주세요!':'이 선 아래로 차곡차곡',16,103);
 for(const b of world.balls)faceDraw(ctx,b.level,b.x,b.y,b.r);

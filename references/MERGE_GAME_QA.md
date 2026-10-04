@@ -4,7 +4,7 @@
 
 - 기본 루트는 게임 선택 화면. `?game=romance`는 기존 미연시, `merge.html`은 별도 얼굴 합체 게임.
 - 미연시의 기존 실행 스크립트 순서와 저장 키를 유지. 본편/후일담/앨범/이미지 등 기존 추적 dist 파일은 index.html을 제외하고 바이트 단위로 동일.
-- 프로필 10명은 기존 sources.json의 사용자 제공 자료를 재사용. 오리고기 SD 원본은 과거 첨부 이력에서 확인했으나 현재 파일이 없어 복구·재첨부 대기. 기존 미연시 11명은 모두 유지.
+- 프로필 10명은 기존 sources.json의 사용자 제공 자료를 재사용. 오리고기는 사용자가 다시 첨부한 SD 원본을 받아 11번째 얼굴로 반영. 기존 미연시 11명은 모두 유지.
 - 자체 고정 시간 간격 원형 물리, 같은 단계 합체, 점수/최고점수, 다음 얼굴, 터치/마우스/키보드, 일시정지/재시작/게임오버.
 - 미연시로 돌아가기 전에 게임 선택으로 나가는 링크는 기존 타이틀 화면에만 추가하여 대화·선택지와 겹치지 않음.
 
@@ -31,3 +31,7 @@
 The original game thread `01a0e6a0-d1b4-7f82-9806-5be16adf5d69`, turn `01a0e823-eb71-7712-8f39-8c2d3b904e0f`, contains the user's SD character attachment `codex-clipboard-a7edb192-a06e-4716-be14-aa8b57e2791a.png`. The source was supplied; the prior assumption that it was never supplied was wrong. The old temporary path no longer exists, and matching files were not found in the relevant project/temporary paths. The same path appears in `game/references/art-v6-prompts.json`. Reattachment/recovery is requested; generated art is not a substitute.
 
 The other ten faces now use tighter Canvas source rectangles. Original image bytes remain unchanged. A lightweight native Canvas rendering of the actual shipping `faceDraw` function was inspected, including a corrected lower face center for Yui. Preview: task-3/qa/face-framing.png. No browser was launched for this framing check. Physics and UI harness tests passed after this change.
+
+## Ori original restored
+
+User reattached the original SD portrait and explicitly requested its use. The official Library helper materialized the PNG, and actual pixels were inspected before use. `dist/assets/ori-original.png` is an unchanged 800 x 800 RGB PNG (327278 bytes), SHA-256 `572493d024c5dd5814084fd75381bd4628c2448f8e31a8482548a88bd8dd9bb2`. Canvas crops it at normalized center (0.50, 0.43), square size 0.86 of original width. The face is the eleventh game-size stage, following existing CAST order. A native Canvas preview of the shipping drawing function verified all eleven faces without launching Chrome. The earlier missing-attachment notes above are historical and resolved.
