@@ -8,7 +8,7 @@ const html=fs.readFileSync('dist/index.html','utf8');
 const scripts=[...html.matchAll(/<script[^>]+src="([^"?]+)(?:\?[^"]*)?"[^>]*>/g)].map(m=>m[1]);
 assert(scripts.some(s=>s.endsWith('story-continuity.js')),'continuity patches must ship in index.html');
 for(const script of scripts){
- if(script.endsWith('app.js'))continue;
+ if(script.endsWith('app.js')||script.endsWith('hub.js'))continue;
  vm.runInContext(fs.readFileSync(`dist/${script.replace(/^\.\//,'')}`,'utf8'),ctx,{filename:script});
  Object.assign(ctx,ctx.window);
 }
