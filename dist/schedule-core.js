@@ -33,8 +33,12 @@ function normalizeEvent(raw){
  if(start&&end&&!nextDay&&end<=start)throw Error('종료가 자정을 넘으면 ‘다음 날 종료’를 선택해 주세요.');
  if(!['scheduled','cancelled','off'].includes(raw.status))throw Error('일정 상태를 확인해 주세요.');
  const sourceUrl=raw.sourceUrl?safeUrl(raw.sourceUrl):'';if(raw.sourceUrl&&!sourceUrl)throw Error('출처는 http 또는 https 주소만 사용할 수 있어요.');
+ const sourceType=raw.sourceType||'unspecified';if(!['primary','secondary','unspecified'].includes(sourceType))throw Error('출처 유형을 확인해 주세요.');
+ const sourceLabel=text(raw.sourceLabel||(sourceUrl?new URL(sourceUrl).hostname:''),80);
+ if(sourceType==='secondary'&&!sourceUrl)throw Error('2차 자료에는 출처 링크가 필요해요.');
+ if(sourceType==='secondary'&&raw.verified===true)throw Error('2차 자료는 원문 확인으로 표시할 수 없어요. 직접 확인한 공식 공지 링크로 바꿔 주세요.');
  if(raw.verified===true&&!sourceUrl)throw Error('원문 확인 표시는 출처 링크가 필요해요.');
- return {id,member:raw.member,date:raw.date,title,start,end,nextDay,status:raw.status,sourceUrl,notes:text(raw.notes||'',500),verified:raw.verified===true,updatedAt:iso(raw.updatedAt)||new Date().toISOString()};
+ return {id,member:raw.member,date:raw.date,title,start,end,nextDay,status:raw.status,sourceUrl,sourceType,sourceLabel,notes:text(raw.notes||'',500),verified:raw.verified===true,updatedAt:iso(raw.updatedAt)||new Date().toISOString()};
 }
 function normalizeDocument(raw){
  if(raw&&raw.sample===true)throw Error('예시 파일은 실제 시간표로 가져올 수 없어요.');
